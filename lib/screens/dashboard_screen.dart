@@ -29,15 +29,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         padding: SizeUtils.scaffoldPaddingSmall,
         child: Column(
           children: [
-            AppConstants.mediumVerticalSpace,
-            Text('Welcome to BazaarLive Dashboard', style: AppTextStyles.bodyLarge(color: AppColors.textSecondary)),
-            AppConstants.largeVerticalSpace,
-            // You can add more dashboard content here
-            Expanded(
-              child: Center(
-                child: Text('Dashboard Content Goes Here', style: AppTextStyles.bodyMedium(color: AppColors.textSecondary)),
-              ),
-            ),
+
           ],
         ),
       ),
