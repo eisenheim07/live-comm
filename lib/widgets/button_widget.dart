@@ -122,20 +122,10 @@ class CustomButton extends StatelessWidget {
     }
 
     if (icon != null) {
-      final iconWidget = Icon(
-        icon, 
-        size: iconSize ?? SizeUtils.iconMedium, 
-        color: textColor,
-      );
+      final iconWidget = Icon(icon, size: iconSize ?? SizeUtils.iconMedium, color: textColor);
 
       final textWidget = Flexible(
-        child: Text(
-          text, 
-          style: _getTextStyle(textColor),
-          textAlign: TextAlign.center,
-          overflow: TextOverflow.ellipsis,
-          maxLines: 1,
-        ),
+        child: Text(text, style: _getTextStyle(textColor), textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, maxLines: 1),
       );
 
       return Center(
@@ -151,22 +141,12 @@ class CustomButton extends StatelessWidget {
     }
 
     return Center(
-      child: Text(
-        text, 
-        style: _getTextStyle(textColor),
-        textAlign: TextAlign.center,
-        overflow: TextOverflow.ellipsis,
-        maxLines: 1,
-      ),
+      child: Text(text, style: _getTextStyle(textColor), textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, maxLines: 1),
     );
   }
 
   TextStyle _getTextStyle(Color? textColor) {
-    return AppTextStyles.button(
-      fontSize: SizeUtils.font10,
-      fontWeight: FontWeight.w400,
-      color: textColor ?? _getDefaultTextColor(),
-    );
+    return AppTextStyles.button(fontSize: SizeUtils.font10, fontWeight: FontWeight.w400, color: textColor ?? _getDefaultTextColor());
   }
 
   Color _getDefaultTextColor() {

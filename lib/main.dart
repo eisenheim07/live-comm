@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'utils/app_theme.dart';
 import 'utils/size_utils.dart';
-import 'screens/login_screen.dart';
+import 'screens/splash_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,7 +52,7 @@ class _AppInitializerState extends State<AppInitializer> {
   Widget build(BuildContext context) {
     return Theme(
       data: AppTheme.lightTheme,
-      child: const LoginScreen(),
+      child: const SplashScreen(),
     );
   }
 }

@@ -110,7 +110,7 @@ class AppConstants {
   // Loading Indicators
   static Widget get primaryLoader => CircularProgressIndicator(
     color: AppColors.primary,
-    strokeWidth: SizeUtils.getWidth(3),
+    strokeWidth: SizeUtils.getWidth(2),
   );
 
   static Widget get secondaryLoader => CircularProgressIndicator(
