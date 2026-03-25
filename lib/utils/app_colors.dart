@@ -2,19 +2,21 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Primary Colors (8 main colors as requested)
-  static const Color primary = Color(0xFFFF6B35); // Orange/Amber primary
+  static const Color primary = Color(0xFFE07020); // Orange primary
   static const Color secondary = Color(0xFF00C851); // Green accent
-  static const Color background = Color(0xFF1A1A1A); // Dark background
+  static const Color background = Color(0xFF0E0700); // Dark scaffold background
   static const Color surface = Color(0xFF2D2D2D); // Card/surface color
   static const Color accent = Color(0xFF4A90E2); // Blue accent
   static const Color error = Color(0xFFFF4444); // Red for errors/alerts
   static const Color warning = Color(0xFFFFA726); // Amber warning
   static const Color success = Color(0xFF4CAF50); // Green success
+  static const Color brown = Color(0xFF8A6050); // Brown accent color
+  static const Color brownDark = Color(0xFF251400); // Dark brown background
 
   // Primary Variants
-  static const Color primaryLight = Color(0xFFFF8A65);
-  static const Color primaryDark = Color(0xFFE65100);
-  static const Color primarySoft = Color(0x33FF6B35); // 20% opacity
+  static const Color primaryLight = Color(0xFFE89660); // Lighter version of E07020
+  static const Color primaryDark = Color(0xFFB85A1A); // Darker version of E07020
+  static const Color primarySoft = Color(0x33E07020); // 20% opacity
 
   // Secondary Variants
   static const Color secondaryLight = Color(0xFF69F0AE);
@@ -22,8 +24,8 @@ class AppColors {
   static const Color secondarySoft = Color(0x3300C851); // 20% opacity
 
   // Background Variants
-  static const Color backgroundLight = Color(0xFF2A2A2A);
-  static const Color backgroundDark = Color(0xFF0F0F0F);
+  static const Color backgroundLight = Color(0xFF1A1200); // Lighter version of background
+  static const Color backgroundDark = Color(0xFF070300); // Darker version of background
   static const Color backgroundOverlay = Color(0x80000000); // 50% black overlay
 
   // Surface Variants
@@ -52,7 +54,7 @@ class AppColors {
 
   // Gradient Colors
   static const LinearGradient primaryGradient = LinearGradient(
-    colors: [AppColors.primary, AppColors.primaryDark],
+    colors: [Color(0xFFE07020), Color(0xFFB85A1A)], // Updated to use new primary colors
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

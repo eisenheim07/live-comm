@@ -6,7 +6,7 @@ import '../utils/size_utils.dart';
 import '../utils/app_text_styles.dart';
 import '../utils/image_constants.dart';
 import '../utils/app_constants.dart';
-import 'login_screen.dart';
+import 'login_email.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

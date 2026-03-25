@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:livecomm/screens/dashboard_screen.dart';
+import 'package:livecomm/screens/login_otp.dart';
 import 'package:livecomm/utils/app_text_styles.dart';
 import 'package:livecomm/utils/image_constants.dart';
 import '../utils/app_colors.dart';
@@ -53,11 +54,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           labelText: 'Email',
                           hintText: 'Enter your email',
-                          hintStyle: AppTextStyles.labelMedium(),
-                          labelStyle: AppTextStyles.labelMedium(),
+                          hintStyle: AppTextStyles.labelMedium(color: AppColors.textSecondary),
+                          labelStyle: AppTextStyles.labelMedium(color: AppColors.textSecondary),
                           prefixIcon: Icon(Icons.email_outlined, color: AppColors.textSecondary),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                            borderSide: BorderSide(color: AppColors.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                            borderSide: BorderSide(color: AppColors.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                            borderSide: BorderSide(color: AppColors.primary),
+                          ),
                         ),
-                        style: AppTextStyles.labelMedium(),
+                        style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
                       ),
                       AppConstants.mediumVerticalSpace,
                       // Password Field
@@ -66,11 +79,23 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           labelText: 'Password',
                           hintText: 'Enter your password',
-                          hintStyle: AppTextStyles.labelMedium(),
-                          labelStyle: AppTextStyles.labelMedium(),
+                          hintStyle: AppTextStyles.labelMedium(color: AppColors.textSecondary),
+                          labelStyle: AppTextStyles.labelMedium(color: AppColors.textSecondary),
                           prefixIcon: Icon(Icons.lock_outlined, color: AppColors.textSecondary),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                            borderSide: BorderSide(color: AppColors.border),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                            borderSide: BorderSide(color: AppColors.border),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                            borderSide: BorderSide(color: AppColors.primary),
+                          ),
                         ),
-                        style: AppTextStyles.labelMedium(),
+                        style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
                       ),
                       AppConstants.largeVerticalSpace,
                       // Login Button - Using our custom Primary Button
@@ -84,6 +109,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
                       AppConstants.mediumVerticalSpace,
+                      // Login with OTP link
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginOtpScreen()));
+                        },
+                        child: Text(
+                          'Login with OTP',
+                          style: AppTextStyles.bodyMedium(color: AppColors.primary, fontWeight: FontWeight.w500),
+                        ),
+                      ),
+                      AppConstants.smallVerticalSpace,
                     ],
                   ),
                 ),

@@ -68,21 +68,20 @@ class CustomButton extends StatelessWidget {
     );
   }
 
-  // Secondary Button - Faded/Disabled style
+  // Secondary Button - Dark brown background with brown text
   Widget _buildSecondaryButton(bool isDisabled) {
-    return OutlinedButton(
+    return ElevatedButton(
       onPressed: isDisabled || isLoading ? null : onPressed,
-      style: OutlinedButton.styleFrom(
-        backgroundColor: isDisabled ? AppColors.surfaceDark : AppColors.surface,
-        foregroundColor: isDisabled ? AppColors.textDisabled : AppColors.textSecondary,
-        side: BorderSide(color: isDisabled ? AppColors.borderDark : AppColors.border, width: 1),
+      style: ElevatedButton.styleFrom(
+        backgroundColor: isDisabled ? AppColors.textTertiary : AppColors.brownDark,
+        foregroundColor: isDisabled ? AppColors.textDisabled : AppColors.brown,
         elevation: 0,
         shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SizeUtils.radius12)),
         padding: EdgeInsets.symmetric(horizontal: SizeUtils.spacing16, vertical: SizeUtils.spacing12),
         alignment: Alignment.center, // Ensure center alignment
       ),
-      child: _buildButtonContent(textColor: isDisabled ? AppColors.textDisabled : AppColors.textSecondary),
+      child: _buildButtonContent(textColor: isDisabled ? AppColors.textDisabled : AppColors.brown),
     );
   }
 
@@ -154,7 +153,7 @@ class CustomButton extends StatelessWidget {
       case ButtonType.primary:
         return AppColors.textOnPrimary;
       case ButtonType.secondary:
-        return AppColors.textSecondary;
+        return AppColors.brown; // Brown text on dark brown background
       case ButtonType.danger:
         return AppColors.error;
     }
