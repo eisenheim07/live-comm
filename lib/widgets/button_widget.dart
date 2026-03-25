@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livecomm/utils/app_text_styles.dart';
 import '../utils/app_colors.dart';
 import '../utils/size_utils.dart';
 
@@ -161,10 +162,9 @@ class CustomButton extends StatelessWidget {
   }
 
   TextStyle _getTextStyle(Color? textColor) {
-    return TextStyle(
+    return AppTextStyles.button(
       fontSize: SizeUtils.font10,
       fontWeight: FontWeight.w400,
-      fontFamily: 'Inter', 
       color: textColor ?? _getDefaultTextColor(),
     );
   }
