@@ -46,7 +46,7 @@ class _SplashScreenState extends State<SplashScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // Logo
-            Image.asset(ImageConstants.logo, fit: BoxFit.cover),
+            Image.asset(ImageConstants.imgLogo, fit: BoxFit.cover),
             AppConstants.extraLargeVerticalSpace,
             // App Name
             Text(

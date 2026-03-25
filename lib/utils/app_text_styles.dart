@@ -86,7 +86,7 @@ class AppTextStyles {
     double? fontSize,
   }) {
     return TextStyle(
-      fontSize: fontSize ?? SizeUtils.font18,
+      fontSize: fontSize ?? SizeUtils.font10,
       fontWeight: fontWeight ?? FontWeight.w500,
       color: color ?? AppColors.textPrimary,
       fontFamily: fontFamily ?? _defaultFontFamily,

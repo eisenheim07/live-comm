@@ -32,12 +32,12 @@ class _LoginScreenState extends State<LoginScreen> {
         child: ConstrainedBox(
           constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - SizeUtils.screenPadding.vertical),
           child: Padding(
-            padding: SizeUtils.cardPaddingSmall,
+            padding: SizeUtils.scaffoldPaddingSmall,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // Logo/Title
-                Image.asset(ImageConstants.logo, fit: BoxFit.cover),
+                Image.asset(ImageConstants.imgLogo, fit: BoxFit.cover),
                 Text('Bazaar Live', style: AppTextStyles.displayLarge()),
                 AppConstants.extraLargeVerticalSpace,
                 // Login Card
