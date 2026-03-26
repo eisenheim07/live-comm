@@ -122,7 +122,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
         behavior: HitTestBehavior.opaque,
         onTap: () {
           // Close keyboard when tapping outside
-          FocusScope.of(context).unfocus();
+          AppConstants.getCloseKeyboard(context);
         },
         child: Padding(
           padding: SizeUtils.screenPadding,
