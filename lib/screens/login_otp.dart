@@ -71,6 +71,8 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
   }
 
   void _handleSendOTP() {
+    // Close keyboard when tapping outside
+    FocusScope.of(context).unfocus();
     if (_isValid) {
       // Navigate to verify OTP screen
       Navigator.push(context, MaterialPageRoute(builder: (context) => const VerifyOtpScreen()));
