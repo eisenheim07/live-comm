@@ -86,6 +86,7 @@ class _VerifyOtpScreenState extends State<VerifyOtpScreen> {
   }
 
   void _handleVerifyOtp() {
+    AppConstants.getCloseKeyboard(context);
     if (_isValid) {
       // Navigate to dashboard
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardScreen()));

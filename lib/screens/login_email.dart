@@ -20,7 +20,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
-  bool _isValid = true;
+  bool _isValid = false;
+  String? _emailError;
+  String? _passwordError;
 
   @override
   void initState() {
@@ -28,9 +30,9 @@ class _LoginScreenState extends State<LoginScreen> {
     // Hide status bar and navigation bar completely
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-    // Add listeners to validate form
-    _emailController.addListener(_validateForm);
-    _passwordController.addListener(_validateForm);
+    // Add listeners to validate form and clear field-specific errors
+    _emailController.addListener(_validateEmail);
+    _passwordController.addListener(_validatePassword);
   }
 
   @override
@@ -40,10 +42,24 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _validateForm() {
+  void _validateEmail() {
     setState(() {
-      _isValid = _isEmailValid(_emailController.text) && _isPasswordValid(_passwordController.text);
+      // Clear email error when user starts typing
+      _emailError = null;
+      _updateFormValidity();
     });
+  }
+
+  void _validatePassword() {
+    setState(() {
+      // Clear password error when user starts typing
+      _passwordError = null;
+      _updateFormValidity();
+    });
+  }
+
+  void _updateFormValidity() {
+    _isValid = _isEmailValid(_emailController.text) && _isPasswordValid(_passwordController.text);
   }
 
   bool _isEmailValid(String email) {
@@ -69,6 +85,48 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() {
       _isPasswordVisible = !_isPasswordVisible;
     });
+  }
+
+  void _showEmailError() {
+    setState(() {
+      final email = _emailController.text;
+      if (email.isEmpty) {
+        _emailError = 'Email is required';
+      } else if (email.length > 30) {
+        _emailError = 'Email cannot exceed 30 characters';
+      } else if (!RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$').hasMatch(email)) {
+        _emailError = 'Please enter a valid email address';
+      }
+    });
+  }
+
+  void _showPasswordError() {
+    setState(() {
+      final password = _passwordController.text;
+      if (password.isEmpty) {
+        _passwordError = 'Password is required';
+      } else if (password.length > 30) {
+        _passwordError = 'Password cannot exceed 30 characters';
+      }
+    });
+  }
+
+  void _handleLogin() {
+    bool hasError = false;
+
+    if (!_isEmailValid(_emailController.text)) {
+      _showEmailError();
+      hasError = true;
+    }
+
+    if (!_isPasswordValid(_passwordController.text)) {
+      _showPasswordError();
+      hasError = true;
+    }
+
+    if (!hasError) {
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardScreen()));
+    }
   }
 
   @override
@@ -131,6 +189,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
                         ),
+                        // Email error message
+                        if (_emailError != null)
+                          Padding(
+                            padding: EdgeInsets.only(top: SizeUtils.spacing8),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                _emailError!,
+                                style: AppTextStyles.bodySmall(color: AppColors.error, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
                         AppConstants.mediumVerticalSpace,
                         // Password Field
                         TextField(
@@ -161,6 +231,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
                         ),
+                        // Password error message
+                        if (_passwordError != null)
+                          Padding(
+                            padding: EdgeInsets.only(top: SizeUtils.spacing8),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                _passwordError!,
+                                style: AppTextStyles.bodySmall(color: AppColors.error, fontWeight: FontWeight.w500),
+                              ),
+                            ),
+                          ),
                         AppConstants.largeVerticalSpace,
                         // Login Button - Using our custom Primary Button
                         PrimaryButton(
@@ -168,10 +250,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           icon: Icons.login,
                           iconPosition: IconPosition.right,
                           iconSize: 24,
+                          onPressed: _handleLogin,
                           isEnabled: _isValid,
-                          onPressed: () {
-                            _isValid ? Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardScreen())) : null;
-                          },
                         ),
                         AppConstants.mediumVerticalSpace,
                         // Login with OTP link
