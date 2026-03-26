@@ -17,7 +17,7 @@ class CustomButton extends StatelessWidget {
   final IconData? icon;
   final IconPosition iconPosition;
   final double? iconSize;
-  final bool enabled;
+  final bool? isEnabled;
 
   const CustomButton({
     super.key,
@@ -30,76 +30,71 @@ class CustomButton extends StatelessWidget {
     this.icon,
     this.iconPosition = IconPosition.left,
     this.iconSize,
-    this.enabled = true,
+    this.isEnabled = true,
   });
 
   @override
   Widget build(BuildContext context) {
-    final bool isDisabled = !enabled || onPressed == null;
-
-    return SizedBox(width: width ?? double.infinity, height: height ?? SizeUtils.buttonHeightMedium, child: _buildButton(isDisabled));
+    return SizedBox(width: width ?? double.infinity, height: height ?? SizeUtils.buttonHeightMedium, child: _buildButton(isEnabled));
   }
 
-  Widget _buildButton(bool isDisabled) {
+  Widget _buildButton(bool? isEnabled) {
     switch (type) {
       case ButtonType.primary:
-        return _buildPrimaryButton(isDisabled);
+        return _buildPrimaryButton(isEnabled);
       case ButtonType.secondary:
-        return _buildSecondaryButton(isDisabled);
+        return _buildSecondaryButton();
       case ButtonType.danger:
-        return _buildDangerButton(isDisabled);
+        return _buildDangerButton();
     }
   }
 
-  // Primary Button - Orange/Amber color
-  Widget _buildPrimaryButton(bool isDisabled) {
+  // Primary Button - Orange color
+  Widget _buildPrimaryButton(bool? isEnabled) {
     return ElevatedButton(
-      onPressed: isDisabled || isLoading ? null : onPressed,
+      onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: isDisabled ? AppColors.textTertiary : AppColors.primary,
-        foregroundColor: isDisabled ? AppColors.textDisabled : AppColors.textOnPrimary,
-        elevation: 0,
-        shadowColor: Colors.transparent,
+        backgroundColor: isEnabled ?? false ? AppColors.primary : AppColors.primary.withOpacity(0.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SizeUtils.radius12)),
         padding: EdgeInsets.symmetric(horizontal: SizeUtils.spacing16, vertical: SizeUtils.spacing12),
         alignment: Alignment.center, // Ensure center alignment
       ),
-      child: _buildButtonContent(textColor: isDisabled ? AppColors.textDisabled : AppColors.textOnPrimary),
+      child: _buildButtonContent(textColor: isEnabled ?? false ? AppColors.textOnPrimary : AppColors.textOnPrimary.withOpacity(0.3)),
     );
   }
 
-  // Secondary Button - Dark brown background with brown text
-  Widget _buildSecondaryButton(bool isDisabled) {
+  // Secondary Button - Brown background with white text
+  Widget _buildSecondaryButton() {
     return ElevatedButton(
-      onPressed: isDisabled || isLoading ? null : onPressed,
+      onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: isDisabled ? AppColors.textTertiary : AppColors.brownDark,
-        foregroundColor: isDisabled ? AppColors.textDisabled : AppColors.brown,
+        backgroundColor: AppColors.brownDark,
+        foregroundColor: AppColors.brown,
         elevation: 0,
         shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SizeUtils.radius12)),
         padding: EdgeInsets.symmetric(horizontal: SizeUtils.spacing16, vertical: SizeUtils.spacing12),
         alignment: Alignment.center, // Ensure center alignment
       ),
-      child: _buildButtonContent(textColor: isDisabled ? AppColors.textDisabled : AppColors.brown),
+      child: _buildButtonContent(textColor: AppColors.brown),
     );
   }
 
   // Danger Button - Red border for extreme cases
-  Widget _buildDangerButton(bool isDisabled) {
+  Widget _buildDangerButton() {
     return OutlinedButton(
-      onPressed: isDisabled || isLoading ? null : onPressed,
+      onPressed: isLoading ? null : onPressed,
       style: OutlinedButton.styleFrom(
         backgroundColor: Colors.transparent,
-        foregroundColor: isDisabled ? AppColors.textDisabled : AppColors.error,
-        side: BorderSide(color: isDisabled ? AppColors.textDisabled : AppColors.error, width: 1.5),
+        foregroundColor: AppColors.error,
+        side: BorderSide(color: AppColors.error, width: 1.5),
         elevation: 0,
         shadowColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SizeUtils.radius12)),
         padding: EdgeInsets.symmetric(horizontal: SizeUtils.spacing16, vertical: SizeUtils.spacing12),
         alignment: Alignment.center, // Ensure center alignment
       ),
-      child: _buildButtonContent(textColor: isDisabled ? AppColors.textDisabled : AppColors.error),
+      child: _buildButtonContent(textColor: AppColors.error),
     );
   }
 
@@ -112,8 +107,7 @@ class CustomButton extends StatelessWidget {
           child: CircularProgressIndicator(
             strokeWidth: 2,
             valueColor: AlwaysStoppedAnimation<Color>(
-              textColor ??
-                  (type == ButtonType.primary ? AppColors.textOnPrimary : (type == ButtonType.danger ? AppColors.error : AppColors.textSecondary)),
+              textColor ?? (type == ButtonType.primary ? AppColors.textOnPrimary : (type == ButtonType.danger ? AppColors.error : AppColors.brown)),
             ),
           ),
         ),
@@ -170,7 +164,7 @@ class PrimaryButton extends StatelessWidget {
   final IconData? icon;
   final IconPosition iconPosition;
   final double? iconSize;
-  final bool enabled;
+  final bool? isEnabled;
 
   const PrimaryButton({
     super.key,
@@ -182,7 +176,7 @@ class PrimaryButton extends StatelessWidget {
     this.icon,
     this.iconPosition = IconPosition.left,
     this.iconSize,
-    this.enabled = true,
+    this.isEnabled = true,
   });
 
   @override
@@ -197,7 +191,7 @@ class PrimaryButton extends StatelessWidget {
       icon: icon,
       iconPosition: iconPosition,
       iconSize: iconSize,
-      enabled: enabled,
+      isEnabled: isEnabled,
     );
   }
 }
@@ -211,7 +205,6 @@ class SecondaryButton extends StatelessWidget {
   final IconData? icon;
   final IconPosition iconPosition;
   final double? iconSize;
-  final bool enabled;
 
   const SecondaryButton({
     super.key,
@@ -223,7 +216,6 @@ class SecondaryButton extends StatelessWidget {
     this.icon,
     this.iconPosition = IconPosition.left,
     this.iconSize,
-    this.enabled = true,
   });
 
   @override
@@ -238,7 +230,6 @@ class SecondaryButton extends StatelessWidget {
       icon: icon,
       iconPosition: iconPosition,
       iconSize: iconSize,
-      enabled: enabled,
     );
   }
 }
@@ -252,7 +243,6 @@ class DangerButton extends StatelessWidget {
   final IconData? icon;
   final IconPosition iconPosition;
   final double? iconSize;
-  final bool enabled;
 
   const DangerButton({
     super.key,
@@ -264,7 +254,6 @@ class DangerButton extends StatelessWidget {
     this.icon,
     this.iconPosition = IconPosition.left,
     this.iconSize,
-    this.enabled = true,
   });
 
   @override
@@ -279,7 +268,6 @@ class DangerButton extends StatelessWidget {
       icon: icon,
       iconPosition: iconPosition,
       iconSize: iconSize,
-      enabled: enabled,
     );
   }
 }

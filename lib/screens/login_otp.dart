@@ -6,7 +6,7 @@ import '../utils/app_text_styles.dart';
 import '../utils/app_constants.dart';
 import '../widgets/button_widget.dart';
 import '../widgets/custom_app_bar.dart';
-import 'dashboard_screen.dart';
+import 'verify_otp.dart';
 
 class LoginOtpScreen extends StatefulWidget {
   const LoginOtpScreen({super.key});
@@ -30,6 +30,8 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
     _phoneController.dispose();
     super.dispose();
   }
+
+  late var _isValid = false;
 
   @override
   Widget build(BuildContext context) {
@@ -55,14 +57,14 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
             AppConstants.smallVerticalSpace,
 
             // Subtitle
-            Text('Shop live from India\'s most iconic bazaars', style: AppTextStyles.bodyMedium(color: AppColors.brown)),
+            Text('Shop live from India\'s most iconic bazaars', style: AppTextStyles.labelSmall(color: AppColors.brown)),
 
             AppConstants.extraLargeVerticalSpace,
 
             // Enter mobile number label
             Text(
               'ENTER YOUR MOBILE NUMBER',
-              style: AppTextStyles.labelSmall(color: AppColors.textTertiary, fontWeight: FontWeight.w500),
+              style: AppTextStyles.labelSmall(color: AppColors.brown, fontWeight: FontWeight.w500),
             ),
             AppConstants.smallVerticalSpace,
 
@@ -94,6 +96,17 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       style: AppTextStyles.bodyMedium(color: AppColors.textPrimary),
+                      onChanged: (v) {
+                        if (v.length == 10) {
+                          setState(() {
+                            _isValid = true;
+                          });
+                        } else {
+                          setState(() {
+                            _isValid = false;
+                          });
+                        }
+                      },
                       decoration: InputDecoration(
                         hintText: '98765 43210',
                         hintStyle: AppTextStyles.bodyMedium(color: AppColors.textTertiary),
@@ -131,12 +144,13 @@ class _LoginOtpScreenState extends State<LoginOtpScreen> {
             const Spacer(),
 
             // Send OTP Button using our custom PrimaryButton
-            SecondaryButton(
+            PrimaryButton(
               text: 'Send OTP →',
               onPressed: () {
-                // Navigate to dashboard for now
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardScreen()));
+                // Navigate to verify OTP screen
+                _isValid ? Navigator.push(context, MaterialPageRoute(builder: (context) => const VerifyOtpScreen())) : null;
               },
+              isEnabled: _isValid,
             ),
           ],
         ),

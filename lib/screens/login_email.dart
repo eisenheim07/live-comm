@@ -24,6 +24,8 @@ class _LoginScreenState extends State<LoginScreen> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   }
 
+  late var _isValid = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -54,9 +56,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           labelText: 'Email',
                           hintText: 'Enter your email',
-                          hintStyle: AppTextStyles.labelMedium(color: AppColors.textSecondary),
-                          labelStyle: AppTextStyles.labelMedium(color: AppColors.textSecondary),
-                          prefixIcon: Icon(Icons.email_outlined, color: AppColors.textSecondary),
+                          hintStyle: AppTextStyles.labelMedium(color: AppColors.white),
+                          labelStyle: AppTextStyles.labelMedium(color: AppColors.white),
+                          prefixIcon: Icon(Icons.email_outlined, color: AppColors.white),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(SizeUtils.radius8),
                             borderSide: BorderSide(color: AppColors.border),
@@ -67,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(SizeUtils.radius8),
-                            borderSide: BorderSide(color: AppColors.primary),
+                            borderSide: BorderSide(color: AppColors.white),
                           ),
                         ),
                         style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
@@ -79,12 +81,12 @@ class _LoginScreenState extends State<LoginScreen> {
                         decoration: InputDecoration(
                           labelText: 'Password',
                           hintText: 'Enter your password',
-                          hintStyle: AppTextStyles.labelMedium(color: AppColors.textSecondary),
-                          labelStyle: AppTextStyles.labelMedium(color: AppColors.textSecondary),
-                          prefixIcon: Icon(Icons.lock_outlined, color: AppColors.textSecondary),
+                          hintStyle: AppTextStyles.labelMedium(color: AppColors.white),
+                          labelStyle: AppTextStyles.labelMedium(color: AppColors.white),
+                          prefixIcon: Icon(Icons.lock_outlined, color: AppColors.white),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(SizeUtils.radius8),
-                            borderSide: BorderSide(color: AppColors.border),
+                            borderSide: BorderSide(color: AppColors.white),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(SizeUtils.radius8),
@@ -92,7 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(SizeUtils.radius8),
-                            borderSide: BorderSide(color: AppColors.primary),
+                            borderSide: BorderSide(color: AppColors.white),
                           ),
                         ),
                         style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
@@ -107,16 +109,20 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: () {
                           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardScreen()));
                         },
+                        isEnabled: _isValid,
                       ),
                       AppConstants.mediumVerticalSpace,
                       // Login with OTP link
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginOtpScreen()));
+                          _isValid ? Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginOtpScreen())) : null;
                         },
                         child: Text(
                           'Login with OTP',
-                          style: AppTextStyles.bodyMedium(color: AppColors.primary, fontWeight: FontWeight.w500),
+                          style: AppTextStyles.labelMedium(
+                            color: AppColors.white,
+                            fontWeight: FontWeight.w500,
+                          ).copyWith(decoration: TextDecoration.underline, decorationColor: AppColors.white),
                         ),
                       ),
                       AppConstants.smallVerticalSpace,
