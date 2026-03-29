@@ -295,6 +295,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _emailController.clear();
   }
 
+  void _clearFullName() {
+    _fullNameController.clear();
+  }
+
+  void _clearPhone() {
+    _phoneController.clear();
+  }
+
   void _togglePasswordVisibility() {
     setState(() {
       _isPasswordVisible = !_isPasswordVisible;
@@ -411,6 +419,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           hintText: 'Enter your full name',
                           prefixIcon: Icons.person_outlined,
                           errorText: _fullNameError,
+                          suffixIcon: _fullNameController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: Icon(Icons.clear, color: AppColors.white),
+                                  onPressed: _clearFullName,
+                                )
+                              : null,
+                          textCapitalization: TextCapitalization.words,
                           inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), LengthLimitingTextInputFormatter(30)],
                         ),
                         AppConstants.mediumVerticalSpace,
@@ -428,7 +443,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   onPressed: _clearEmail,
                                 )
                               : null,
-                          inputFormatters: [LengthLimitingTextInputFormatter(30)],
+                          inputFormatters: [
+                            FilteringTextInputFormatter.deny(RegExp(r'\s')), // No spaces allowed
+                            LengthLimitingTextInputFormatter(30),
+                          ],
                         ),
                         AppConstants.mediumVerticalSpace,
 
@@ -439,6 +457,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           hintText: 'Enter your phone number',
                           prefixIcon: Icons.phone_outlined,
                           errorText: _phoneError,
+                          suffixIcon: _phoneController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: Icon(Icons.clear, color: AppColors.white),
+                                  onPressed: _clearPhone,
+                                )
+                              : null,
                           keyboardType: TextInputType.number,
                           inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
                         ),
@@ -537,6 +561,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     TextInputType? keyboardType,
     List<TextInputFormatter>? inputFormatters,
     bool enabled = true,
+    TextCapitalization textCapitalization = TextCapitalization.none,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -547,6 +572,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           obscureText: obscureText,
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
+          textCapitalization: textCapitalization,
           decoration: InputDecoration(
             labelText: labelText,
             hintText: hintText,
