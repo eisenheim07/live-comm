@@ -1,20 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../utils/app_colors.dart';
 import '../utils/size_utils.dart';
 import '../utils/app_text_styles.dart';
 import '../utils/app_constants.dart';
 import '../utils/image_constants.dart';
+import '../utils/configs.dart';
 import '../widgets/button_widget.dart';
+import '../widgets/loading_overlay.dart';
+import '../widgets/error_bottom_sheet.dart';
+import '../cubit/signup_cubit.dart';
+import '../cubit/signup_state.dart';
+import 'login_email.dart';
 
-class SignUpScreen extends StatefulWidget {
+class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(create: (context) => SignupCubit(), child: const SignUpScreenView());
+  }
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class SignUpScreenView extends StatefulWidget {
+  const SignUpScreenView({super.key});
+
+  @override
+  State<SignUpScreenView> createState() => _SignUpScreenViewState();
+}
+
+class _SignUpScreenViewState extends State<SignUpScreenView> {
   // Controllers
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -373,180 +389,214 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     // Only proceed with signup if no validation errors
     if (!hasError) {
-      // TODO: Implement signup API call
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Sign up functionality will be implemented'), backgroundColor: AppColors.success));
+      // Clear any existing errors
+      context.read<SignupCubit>().clearError();
+
+      // Call signup API
+      context.read<SignupCubit>().signup(
+        name: _fullNameController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+        password: _passwordController.text,
+        role: _selectedRole,
+        shopName: _selectedRole == 'seller' ? _shopNameController.text.trim() : null,
+        gstNumber: _selectedRole == 'seller' ? _gstNumberController.text.trim() : null,
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () {
-          // Close keyboard when tapping outside
-          AppConstants.getCloseKeyboard(context);
-        },
-        child: SingleChildScrollView(
-          padding: SizeUtils.screenPadding,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - SizeUtils.screenPadding.vertical),
-            child: Padding(
-              padding: SizeUtils.scaffoldPaddingSmall,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Logo/Title
-                  Image.asset(ImageConstants.imgLogo, fit: BoxFit.cover),
-                  Text('Bazaar Live', style: AppTextStyles.displayLarge()),
-                  AppConstants.extraLargeVerticalSpace,
-                  // Sign Up Card
-                  Container(
-                    padding: SizeUtils.cardPadding,
-                    decoration: AppConstants.cardDecoration,
+    return BlocConsumer<SignupCubit, SignupState>(
+      listener: (context, state) {
+        if (state is SignupSuccess) {
+          // Show success snackbar and navigate to login
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: AppColors.success));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+        } else if (state is SignupError) {
+          // Show error using bottom sheet
+          final exception = state.exception;
+          if (exception is ApiException) {
+            ErrorBottomSheet.showError(context: context, title: exception.errorTitle, message: exception.displayMessage, buttonText: 'Got it');
+          } else {
+            ErrorBottomSheet.showError(context: context, title: 'Error!', message: state.message, buttonText: 'Got it');
+          }
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is SignupLoading;
+
+        return LoadingOverlay(
+          isLoading: isLoading,
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                // Close keyboard when tapping outside
+                FocusScope.of(context).unfocus();
+              },
+              child: SingleChildScrollView(
+                padding: SizeUtils.screenPadding,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - SizeUtils.screenPadding.vertical),
+                  child: Padding(
+                    padding: SizeUtils.scaffoldPaddingSmall,
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Create Account', style: AppTextStyles.labelLarge()),
-                        AppConstants.largeVerticalSpace,
+                        // Logo/Title
+                        Image.asset(ImageConstants.imgLogo, fit: BoxFit.cover),
+                        Text('Bazaar Live', style: AppTextStyles.displayLarge()),
+                        AppConstants.extraLargeVerticalSpace,
+                        // Sign Up Card
+                        Container(
+                          padding: SizeUtils.cardPadding,
+                          decoration: AppConstants.cardDecoration,
+                          child: Column(
+                            children: [
+                              Text('Create Account', style: AppTextStyles.labelLarge()),
+                              AppConstants.largeVerticalSpace,
 
-                        // Full Name Field
-                        _buildTextField(
-                          controller: _fullNameController,
-                          labelText: 'Full Name',
-                          hintText: 'Enter your full name',
-                          prefixIcon: Icons.person_outlined,
-                          errorText: _fullNameError,
-                          suffixIcon: _fullNameController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: Icon(Icons.clear, color: AppColors.white),
-                                  onPressed: _clearFullName,
-                                )
-                              : null,
-                          textCapitalization: TextCapitalization.words,
-                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), LengthLimitingTextInputFormatter(30)],
-                        ),
-                        AppConstants.mediumVerticalSpace,
+                              // Full Name Field
+                              _buildTextField(
+                                controller: _fullNameController,
+                                labelText: 'Full Name',
+                                hintText: 'Enter your full name',
+                                prefixIcon: Icons.person_outlined,
+                                errorText: _fullNameError,
+                                suffixIcon: _fullNameController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: Icon(Icons.clear, color: AppColors.white),
+                                        onPressed: _clearFullName,
+                                      )
+                                    : null,
+                                textCapitalization: TextCapitalization.words,
+                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), LengthLimitingTextInputFormatter(30)],
+                              ),
+                              AppConstants.mediumVerticalSpace,
 
-                        // Email Field
-                        _buildTextField(
-                          controller: _emailController,
-                          labelText: 'Email',
-                          hintText: 'Enter your email',
-                          prefixIcon: Icons.email_outlined,
-                          errorText: _emailError,
-                          suffixIcon: _emailController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: Icon(Icons.clear, color: AppColors.white),
-                                  onPressed: _clearEmail,
-                                )
-                              : null,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.deny(RegExp(r'\s')), // No spaces allowed
-                            LengthLimitingTextInputFormatter(30),
-                          ],
-                        ),
-                        AppConstants.mediumVerticalSpace,
+                              // Email Field
+                              _buildTextField(
+                                controller: _emailController,
+                                labelText: 'Email',
+                                hintText: 'Enter your email',
+                                prefixIcon: Icons.email_outlined,
+                                errorText: _emailError,
+                                suffixIcon: _emailController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: Icon(Icons.clear, color: AppColors.white),
+                                        onPressed: _clearEmail,
+                                      )
+                                    : null,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.deny(RegExp(r'\s')), // No spaces allowed
+                                  LengthLimitingTextInputFormatter(30),
+                                ],
+                              ),
+                              AppConstants.mediumVerticalSpace,
 
-                        // Phone Field
-                        _buildTextField(
-                          controller: _phoneController,
-                          labelText: 'Phone Number',
-                          hintText: 'Enter your phone number',
-                          prefixIcon: Icons.phone_outlined,
-                          errorText: _phoneError,
-                          suffixIcon: _phoneController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: Icon(Icons.clear, color: AppColors.white),
-                                  onPressed: _clearPhone,
-                                )
-                              : null,
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
-                        ),
-                        AppConstants.mediumVerticalSpace,
+                              // Phone Field
+                              _buildTextField(
+                                controller: _phoneController,
+                                labelText: 'Phone Number',
+                                hintText: 'Enter your phone number',
+                                prefixIcon: Icons.phone_outlined,
+                                errorText: _phoneError,
+                                suffixIcon: _phoneController.text.isNotEmpty
+                                    ? IconButton(
+                                        icon: Icon(Icons.clear, color: AppColors.white),
+                                        onPressed: _clearPhone,
+                                      )
+                                    : null,
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
+                              ),
+                              AppConstants.mediumVerticalSpace,
 
-                        // Password Field
-                        _buildTextField(
-                          controller: _passwordController,
-                          labelText: 'Password',
-                          hintText: 'Enter your password',
-                          prefixIcon: Icons.lock_outlined,
-                          errorText: _passwordError,
-                          obscureText: !_isPasswordVisible,
-                          suffixIcon: IconButton(
-                            icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: AppColors.white),
-                            onPressed: _togglePasswordVisibility,
+                              // Password Field
+                              _buildTextField(
+                                controller: _passwordController,
+                                labelText: 'Password',
+                                hintText: 'Enter your password',
+                                prefixIcon: Icons.lock_outlined,
+                                errorText: _passwordError,
+                                obscureText: !_isPasswordVisible,
+                                suffixIcon: IconButton(
+                                  icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: AppColors.white),
+                                  onPressed: _togglePasswordVisibility,
+                                ),
+                                inputFormatters: [LengthLimitingTextInputFormatter(30)],
+                              ),
+                              AppConstants.mediumVerticalSpace,
+
+                              // Confirm Password Field
+                              _buildTextField(
+                                controller: _confirmPasswordController,
+                                labelText: 'Confirm Password',
+                                hintText: 'Confirm your password',
+                                prefixIcon: Icons.lock_outlined,
+                                errorText: _confirmPasswordError,
+                                obscureText: !_isConfirmPasswordVisible,
+                                suffixIcon: IconButton(
+                                  icon: Icon(_isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off, color: AppColors.white),
+                                  onPressed: _toggleConfirmPasswordVisibility,
+                                ),
+                                inputFormatters: [LengthLimitingTextInputFormatter(30)],
+                              ),
+                              AppConstants.mediumVerticalSpace,
+
+                              // Role Dropdown
+                              _buildRoleDropdown(),
+                              AppConstants.mediumVerticalSpace,
+
+                              // Shop Name Field (conditional)
+                              _buildTextField(
+                                controller: _shopNameController,
+                                labelText: 'Shop Name',
+                                hintText: 'Enter your shop name',
+                                prefixIcon: Icons.store_outlined,
+                                errorText: _shopNameError,
+                                enabled: _selectedRole == 'seller',
+                                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), LengthLimitingTextInputFormatter(20)],
+                              ),
+                              AppConstants.mediumVerticalSpace,
+
+                              // GST Number Field (conditional)
+                              _buildTextField(
+                                controller: _gstNumberController,
+                                labelText: 'GST Number',
+                                hintText: 'Enter your GST number',
+                                prefixIcon: Icons.receipt_outlined,
+                                errorText: _gstNumberError,
+                                enabled: _selectedRole == 'seller',
+                                inputFormatters: [LengthLimitingTextInputFormatter(15), FilteringTextInputFormatter.allow(RegExp(r'[0-9A-Z]'))],
+                              ),
+                              AppConstants.largeVerticalSpace,
+
+                              // Sign Up Button
+                              PrimaryButton(
+                                text: 'Sign Up',
+                                icon: Icons.person_add,
+                                iconPosition: IconPosition.right,
+                                iconSize: 24,
+                                isLoading: isLoading,
+                                isEnabled: _isValid && !isLoading,
+                                onPressed: isLoading ? null : _handleSignUp,
+                              ),
+                              AppConstants.smallVerticalSpace,
+                            ],
                           ),
-                          inputFormatters: [LengthLimitingTextInputFormatter(30)],
                         ),
-                        AppConstants.mediumVerticalSpace,
-
-                        // Confirm Password Field
-                        _buildTextField(
-                          controller: _confirmPasswordController,
-                          labelText: 'Confirm Password',
-                          hintText: 'Confirm your password',
-                          prefixIcon: Icons.lock_outlined,
-                          errorText: _confirmPasswordError,
-                          obscureText: !_isConfirmPasswordVisible,
-                          suffixIcon: IconButton(
-                            icon: Icon(_isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off, color: AppColors.white),
-                            onPressed: _toggleConfirmPasswordVisibility,
-                          ),
-                          inputFormatters: [LengthLimitingTextInputFormatter(30)],
-                        ),
-                        AppConstants.mediumVerticalSpace,
-
-                        // Role Dropdown
-                        _buildRoleDropdown(),
-                        AppConstants.mediumVerticalSpace,
-
-                        // Shop Name Field (conditional)
-                        _buildTextField(
-                          controller: _shopNameController,
-                          labelText: 'Shop Name',
-                          hintText: 'Enter your shop name',
-                          prefixIcon: Icons.store_outlined,
-                          errorText: _shopNameError,
-                          enabled: _selectedRole == 'seller',
-                          inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')), LengthLimitingTextInputFormatter(20)],
-                        ),
-                        AppConstants.mediumVerticalSpace,
-
-                        // GST Number Field (conditional)
-                        _buildTextField(
-                          controller: _gstNumberController,
-                          labelText: 'GST Number',
-                          hintText: 'Enter your GST number',
-                          prefixIcon: Icons.receipt_outlined,
-                          errorText: _gstNumberError,
-                          enabled: _selectedRole == 'seller',
-                          inputFormatters: [LengthLimitingTextInputFormatter(15), FilteringTextInputFormatter.allow(RegExp(r'[0-9A-Z]'))],
-                        ),
-                        AppConstants.largeVerticalSpace,
-
-                        // Sign Up Button
-                        PrimaryButton(
-                          text: 'Sign Up',
-                          icon: Icons.person_add,
-                          iconPosition: IconPosition.right,
-                          iconSize: 24,
-                          isEnabled: _isValid,
-                          onPressed: _handleSignUp, // Always allow clicking to show validation errors
-                        ),
-                        AppConstants.smallVerticalSpace,
                       ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
