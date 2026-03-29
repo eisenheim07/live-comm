@@ -52,7 +52,7 @@ class CustomButton extends StatelessWidget {
   // Primary Button - Orange color
   Widget _buildPrimaryButton(bool? isEnabled) {
     return ElevatedButton(
-      onPressed: isLoading ? null : onPressed,
+      onPressed: isLoading ? () {} : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: isEnabled ?? false ? AppColors.primary : AppColors.primary.withOpacity(0.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SizeUtils.radius12)),
@@ -66,7 +66,7 @@ class CustomButton extends StatelessWidget {
   // Secondary Button - Brown background with white text
   Widget _buildSecondaryButton() {
     return ElevatedButton(
-      onPressed: isLoading ? null : onPressed,
+      onPressed: isLoading ? () {} : onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: AppColors.brownDark,
         foregroundColor: AppColors.brown,
@@ -83,7 +83,7 @@ class CustomButton extends StatelessWidget {
   // Danger Button - Red border for extreme cases
   Widget _buildDangerButton() {
     return OutlinedButton(
-      onPressed: isLoading ? null : onPressed,
+      onPressed: isLoading ? () {} : onPressed,
       style: OutlinedButton.styleFrom(
         backgroundColor: Colors.transparent,
         foregroundColor: AppColors.error,

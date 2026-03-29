@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:livecomm/screens/dashboard_screen.dart';
 import 'package:livecomm/screens/login_otp.dart';
 import 'package:livecomm/utils/app_text_styles.dart';
@@ -7,7 +8,12 @@ import 'package:livecomm/utils/image_constants.dart';
 import '../utils/app_colors.dart';
 import '../utils/size_utils.dart';
 import '../utils/app_constants.dart';
+import '../utils/configs.dart';
 import '../widgets/button_widget.dart';
+import '../widgets/loading_overlay.dart';
+import '../widgets/error_bottom_sheet.dart';
+import '../cubit/auth_cubit.dart';
+import '../cubit/auth_state.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -17,8 +23,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController(text: "testing123@livecomm.com");
+  final TextEditingController _passwordController = TextEditingController(text: "Testing@123");
   bool _isPasswordVisible = false;
   bool _isValid = false;
   String? _emailError;
@@ -112,6 +118,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleLogin() {
+    AppConstants.getCloseKeyboard(context);
+    // Clear any existing errors
+    context.read<AuthCubit>().clearError();
+
     bool hasError = false;
 
     if (!_isEmailValid(_emailController.text)) {
@@ -125,158 +135,205 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     if (!hasError) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardScreen()));
+      // Trigger login API call
+      context.read<AuthCubit>().login(_emailController.text.trim(), _passwordController.text);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: GestureDetector(
-        onTap: () {
-          // Close keyboard when tapping outside
-          FocusScope.of(context).unfocus();
-        },
-        child: SingleChildScrollView(
-          padding: SizeUtils.screenPadding,
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - SizeUtils.screenPadding.vertical),
-            child: Padding(
-              padding: SizeUtils.scaffoldPaddingSmall,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Logo/Title
-                  Image.asset(ImageConstants.imgLogo, fit: BoxFit.cover),
-                  Text('Bazaar Live', style: AppTextStyles.displayLarge()),
-                  AppConstants.extraLargeVerticalSpace,
-                  // Login Card
-                  Container(
-                    padding: SizeUtils.cardPadding,
-                    decoration: AppConstants.cardDecoration,
+    return BlocConsumer<AuthCubit, AuthState>(
+      listener: (context, state) {
+        if (state is AuthSuccess) {
+          // Navigate to dashboard on successful login
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardScreen()));
+        } else if (state is AuthError) {
+          // Show API error using bottom sheet with proper error handling
+          final exception = state.exception;
+          if (exception is ApiException) {
+            ErrorBottomSheet.showError(context: context, title: exception.errorTitle, message: exception.displayMessage, buttonText: 'Got it');
+          } else {
+            ErrorBottomSheet.showError(
+              context: context,
+              title: 'Error!',
+              message: 'Something went wrong, our team is working on it',
+              buttonText: 'Got it',
+            );
+          }
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state is AuthLoading;
+
+        return LoadingOverlay(
+          isLoading: isLoading,
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                // Close keyboard when tapping outside
+                FocusScope.of(context).unfocus();
+              },
+              child: SingleChildScrollView(
+                padding: SizeUtils.screenPadding,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: MediaQuery.of(context).size.height - SizeUtils.screenPadding.vertical),
+                  child: Padding(
+                    padding: SizeUtils.scaffoldPaddingSmall,
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text('Welcome Back', style: AppTextStyles.labelLarge()),
-                        AppConstants.largeVerticalSpace,
-                        // Email Field
-                        TextField(
-                          controller: _emailController,
-                          decoration: InputDecoration(
-                            labelText: 'Email',
-                            hintText: 'Enter your email',
-                            hintStyle: AppTextStyles.labelMedium(color: AppColors.white),
-                            labelStyle: AppTextStyles.labelMedium(color: AppColors.white),
-                            prefixIcon: Icon(Icons.email_outlined, color: AppColors.white),
-                            suffixIcon: _emailController.text.isNotEmpty
-                                ? IconButton(
-                                    icon: Icon(Icons.clear, color: AppColors.white),
-                                    onPressed: _clearEmail,
-                                  )
-                                : null,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(SizeUtils.radius8),
-                              borderSide: BorderSide(color: AppColors.border),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(SizeUtils.radius8),
-                              borderSide: BorderSide(color: AppColors.border),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(SizeUtils.radius8),
-                              borderSide: BorderSide(color: AppColors.white),
-                            ),
-                          ),
-                          style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
-                        ),
-                        // Email error message
-                        if (_emailError != null)
-                          Padding(
-                            padding: EdgeInsets.only(top: SizeUtils.spacing8),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                _emailError!,
-                                style: AppTextStyles.bodySmall(color: AppColors.error, fontWeight: FontWeight.w500),
+                        // Logo/Title
+                        Image.asset(ImageConstants.imgLogo, fit: BoxFit.cover),
+                        Text('Bazaar Live', style: AppTextStyles.displayLarge()),
+                        AppConstants.extraLargeVerticalSpace,
+                        // Login Card
+                        Container(
+                          padding: SizeUtils.cardPadding,
+                          decoration: AppConstants.cardDecoration,
+                          child: Column(
+                            children: [
+                              Text('Welcome Back', style: AppTextStyles.labelLarge()),
+                              AppConstants.largeVerticalSpace,
+                              // Email Field
+                              TextField(
+                                controller: _emailController,
+                                enabled: !isLoading,
+                                decoration: InputDecoration(
+                                  labelText: 'Email',
+                                  hintText: 'Enter your email',
+                                  hintStyle: AppTextStyles.labelMedium(color: AppColors.white),
+                                  labelStyle: AppTextStyles.labelMedium(color: AppColors.white),
+                                  prefixIcon: Icon(Icons.email_outlined, color: AppColors.white),
+                                  suffixIcon: _emailController.text.isNotEmpty && !isLoading
+                                      ? IconButton(
+                                          icon: Icon(Icons.clear, color: AppColors.white),
+                                          onPressed: _clearEmail,
+                                        )
+                                      : null,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                                    borderSide: BorderSide(color: AppColors.border),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                                    borderSide: BorderSide(color: AppColors.border),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                                    borderSide: BorderSide(color: AppColors.white),
+                                  ),
+                                  disabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                                    borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                                  ),
+                                ),
+                                style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
                               ),
-                            ),
-                          ),
-                        AppConstants.mediumVerticalSpace,
-                        // Password Field
-                        TextField(
-                          controller: _passwordController,
-                          obscureText: !_isPasswordVisible,
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            hintText: 'Enter your password',
-                            hintStyle: AppTextStyles.labelMedium(color: AppColors.white),
-                            labelStyle: AppTextStyles.labelMedium(color: AppColors.white),
-                            prefixIcon: Icon(Icons.lock_outlined, color: AppColors.white),
-                            suffixIcon: IconButton(
-                              icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: AppColors.white),
-                              onPressed: _togglePasswordVisibility,
-                            ),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(SizeUtils.radius8),
-                              borderSide: BorderSide(color: AppColors.white),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(SizeUtils.radius8),
-                              borderSide: BorderSide(color: AppColors.border),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(SizeUtils.radius8),
-                              borderSide: BorderSide(color: AppColors.white),
-                            ),
-                          ),
-                          style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
-                        ),
-                        // Password error message
-                        if (_passwordError != null)
-                          Padding(
-                            padding: EdgeInsets.only(top: SizeUtils.spacing8),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                _passwordError!,
-                                style: AppTextStyles.bodySmall(color: AppColors.error, fontWeight: FontWeight.w500),
+                              // Email error message
+                              if (_emailError != null)
+                                Padding(
+                                  padding: EdgeInsets.only(top: SizeUtils.spacing8),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      _emailError!,
+                                      style: AppTextStyles.bodySmall(color: AppColors.error, fontWeight: FontWeight.w500),
+                                    ),
+                                  ),
+                                ),
+                              AppConstants.mediumVerticalSpace,
+                              // Password Field
+                              TextField(
+                                controller: _passwordController,
+                                enabled: !isLoading,
+                                obscureText: !_isPasswordVisible,
+                                decoration: InputDecoration(
+                                  labelText: 'Password',
+                                  hintText: 'Enter your password',
+                                  hintStyle: AppTextStyles.labelMedium(color: AppColors.white),
+                                  labelStyle: AppTextStyles.labelMedium(color: AppColors.white),
+                                  prefixIcon: Icon(Icons.lock_outlined, color: AppColors.white),
+                                  suffixIcon: IconButton(
+                                    icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off, color: AppColors.white),
+                                    onPressed: isLoading ? null : _togglePasswordVisibility,
+                                  ),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                                    borderSide: BorderSide(color: AppColors.white),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                                    borderSide: BorderSide(color: AppColors.border),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                                    borderSide: BorderSide(color: AppColors.white),
+                                  ),
+                                  disabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(SizeUtils.radius8),
+                                    borderSide: BorderSide(color: AppColors.border.withOpacity(0.5)),
+                                  ),
+                                ),
+                                style: AppTextStyles.labelMedium(color: AppColors.textPrimary),
                               ),
-                            ),
+                              // Password error message
+                              if (_passwordError != null)
+                                Padding(
+                                  padding: EdgeInsets.only(top: SizeUtils.spacing8),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      _passwordError!,
+                                      style: AppTextStyles.bodySmall(color: AppColors.error, fontWeight: FontWeight.w500),
+                                    ),
+                                  ),
+                                ),
+                              AppConstants.largeVerticalSpace,
+                              // Login Button - Using our custom Primary Button
+                              PrimaryButton(
+                                text: 'Login',
+                                icon: Icons.login,
+                                iconPosition: IconPosition.right,
+                                iconSize: 24,
+                                isLoading: isLoading,
+                                isEnabled: _isValid,
+                                onPressed: isLoading ? null : _handleLogin,
+                              ),
+                              AppConstants.mediumVerticalSpace,
+                              // Login with OTP link
+                              GestureDetector(
+                                onTap: isLoading
+                                    ? null
+                                    : () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginOtpScreen()));
+                                      },
+                                child: Text(
+                                  'Login with OTP',
+                                  style:
+                                      AppTextStyles.labelMedium(
+                                        color: isLoading ? AppColors.white.withOpacity(0.5) : AppColors.white,
+                                        fontWeight: FontWeight.w500,
+                                      ).copyWith(
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: isLoading ? AppColors.white.withOpacity(0.5) : AppColors.white,
+                                      ),
+                                ),
+                              ),
+                              AppConstants.smallVerticalSpace,
+                            ],
                           ),
-                        AppConstants.largeVerticalSpace,
-                        // Login Button - Using our custom Primary Button
-                        PrimaryButton(
-                          text: 'Login',
-                          icon: Icons.login,
-                          iconPosition: IconPosition.right,
-                          iconSize: 24,
-                          onPressed: _handleLogin,
-                          isEnabled: _isValid,
                         ),
-                        AppConstants.mediumVerticalSpace,
-                        // Login with OTP link
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginOtpScreen()));
-                          },
-                          child: Text(
-                            'Login with OTP',
-                            style: AppTextStyles.labelMedium(
-                              color: AppColors.white,
-                              fontWeight: FontWeight.w500,
-                            ).copyWith(decoration: TextDecoration.underline, decorationColor: AppColors.white),
-                          ),
-                        ),
-                        AppConstants.smallVerticalSpace,
                       ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

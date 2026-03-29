@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'utils/app_theme.dart';
 import 'utils/size_utils.dart';
+import 'utils/app_logger.dart';
 import 'screens/splash_screen.dart';
+import 'cubit/auth_cubit.dart';
+import 'services/app_initializer.dart';
 
-void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Set system UI overlay style
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light,
-      systemNavigationBarColor: Colors.black,
-      systemNavigationBarIconBrightness: Brightness.light,
-    ),
-  );
+void main() async {
+  // Initialize all app services at startup
+  await AppInitializer.initialize();
 
   runApp(const MyApp());
 }
@@ -25,22 +19,62 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Bazaar Live',
-      debugShowCheckedModeBanner: false,
-      home: const AppInitializer(),
+    return BlocProvider(
+      create: (context) => AuthCubit(),
+      child: MaterialApp(
+        title: 'Bazaar Live',
+        debugShowCheckedModeBanner: false,
+        home: const AppWrapper(),
+      ),
     );
   }
 }
 
-class AppInitializer extends StatefulWidget {
-  const AppInitializer({super.key});
+class AppWrapper extends StatefulWidget {
+  const AppWrapper({super.key});
 
   @override
-  State<AppInitializer> createState() => _AppInitializerState();
+  State<AppWrapper> createState() => _AppWrapperState();
 }
 
-class _AppInitializerState extends State<AppInitializer> {
+class _AppWrapperState extends State<AppWrapper> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    // Add observer to handle app lifecycle
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    // Remove observer only - don't dispose services here
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    
+    switch (state) {
+      case AppLifecycleState.resumed:
+        // App is in foreground
+        AppLogger.lifecycle('App resumed');
+        break;
+      case AppLifecycleState.paused:
+        // App is in background
+        AppLogger.lifecycle('App paused');
+        break;
+      case AppLifecycleState.detached:
+        // App is being terminated - dispose services
+        AppLogger.lifecycle('App detached - disposing services');
+        AppInitializer.dispose();
+        break;
+      default:
+        break;
+    }
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
