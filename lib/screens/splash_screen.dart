@@ -9,7 +9,7 @@ import '../utils/app_constants.dart';
 import '../cubit/splash_cubit.dart';
 import '../cubit/splash_state.dart';
 import 'login_email.dart';
-import 'dashboard_screen.dart';
+import 'main_navigation_screen.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -21,8 +21,8 @@ class SplashScreen extends StatelessWidget {
       child: BlocListener<SplashCubit, SplashState>(
         listener: (context, state) {
           if (state is SplashAuthenticated) {
-            // User is authenticated - navigate to dashboard
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardScreen()));
+            // User is authenticated - navigate to main navigation
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigationScreen()));
           } else if (state is SplashUnauthenticated) {
             // User is not authenticated - navigate to login
             Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));

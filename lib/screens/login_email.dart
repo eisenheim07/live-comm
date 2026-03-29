@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:livecomm/screens/dashboard_screen.dart';
+import 'package:livecomm/screens/main_navigation_screen.dart';
 import 'package:livecomm/screens/login_otp.dart';
 import 'package:livecomm/screens/signup_screen.dart';
 import 'package:livecomm/utils/app_text_styles.dart';
@@ -24,7 +24,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController(text: "testing123@livecomm.com");
+  final TextEditingController _emailController = TextEditingController(text: "testing.khan123@livecomm.com");
   final TextEditingController _passwordController = TextEditingController(text: "Testing@123");
   bool _isPasswordVisible = false;
   bool _isValid = false;
@@ -146,8 +146,8 @@ class _LoginScreenState extends State<LoginScreen> {
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is AuthSuccess) {
-          // Navigate to dashboard on successful login
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardScreen()));
+          // Navigate to main navigation screen on successful login
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigationScreen()));
         } else if (state is AuthError) {
           // Show API error using bottom sheet with proper error handling
           final exception = state.exception;

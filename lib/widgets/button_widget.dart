@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livecomm/utils/app_constants.dart';
 import 'package:livecomm/utils/app_text_styles.dart';
 import '../utils/app_colors.dart';
 import '../utils/size_utils.dart';
@@ -127,8 +128,8 @@ class CustomButton extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: iconPosition == IconPosition.left
-              ? [iconWidget, SizedBox(width: SizeUtils.spacing8), textWidget]
-              : [textWidget, SizedBox(width: SizeUtils.spacing8), iconWidget],
+              ? [iconWidget, AppConstants.mediumHorizontalSpace, textWidget]
+              : [textWidget, AppConstants.mediumHorizontalSpace, iconWidget],
         ),
       );
     }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livecomm/utils/app_constants.dart';
 import '../utils/app_colors.dart';
 import '../utils/size_utils.dart';
 import '../utils/app_text_styles.dart';
@@ -39,11 +40,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 child: Icon(
                   Icons.arrow_back,
                   color: AppColors.primary,
-                  size: SizeUtils.getWidth(24),
+                  size: SizeUtils.getWidth(16),
                 ),
               ),
             ),
-            SizedBox(width: SizeUtils.spacing12),
+            AppConstants.mediumHorizontalSpace
           ],
           
           // Title Text

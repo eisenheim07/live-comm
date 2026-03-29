@@ -89,7 +89,7 @@ class ErrorBottomSheet extends StatelessWidget {
                       onPressed: onDangerPressed ?? () => Navigator.of(context).pop(),
                     ),
                   ),
-                  SizedBox(width: SizeUtils.spacing12),
+                  AppConstants.mediumHorizontalSpace,
                   // Primary button on right
                   Expanded(
                     child: PrimaryButton(
