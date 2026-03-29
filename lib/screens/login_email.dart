@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:livecomm/screens/dashboard_screen.dart';
 import 'package:livecomm/screens/login_otp.dart';
+import 'package:livecomm/screens/signup_screen.dart';
 import 'package:livecomm/utils/app_text_styles.dart';
 import 'package:livecomm/utils/image_constants.dart';
 import '../utils/app_colors.dart';
@@ -319,6 +320,25 @@ class _LoginScreenState extends State<LoginScreen> {
                                         decoration: TextDecoration.underline,
                                         decorationColor: isLoading ? AppColors.white.withOpacity(0.5) : AppColors.white,
                                       ),
+                                ),
+                              ),
+                              AppConstants.smallVerticalSpace,
+                              // Sign Up link
+                              GestureDetector(
+                                onTap: isLoading
+                                    ? null
+                                    : () {
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUpScreen()));
+                                      },
+                                child: Text(
+                                  'Don\'t have an account? Sign Up',
+                                  style: AppTextStyles.labelMedium(
+                                    color: isLoading ? AppColors.primary.withOpacity(0.5) : AppColors.primary,
+                                    fontWeight: FontWeight.w500,
+                                  ).copyWith(
+                                    decoration: TextDecoration.underline,
+                                    decorationColor: isLoading ? AppColors.primary.withOpacity(0.5) : AppColors.primary,
+                                  ),
                                 ),
                               ),
                               AppConstants.smallVerticalSpace,
