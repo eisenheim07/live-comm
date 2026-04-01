@@ -89,6 +89,20 @@ class ApiService {
     }
   }
 
+  // Delete product by ID
+  static Future<Map<String, dynamic>> deleteProduct(String productId) async {
+    try {
+      final response = await _httpService.delete(
+        endpoint: '${ApiConfig.DELETE_PRODUCT}/$productId',
+        headers: await _getAuthHeaders(),
+      );
+      
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // Helper method to get authorization headers
   static Future<Map<String, String>> _getAuthHeaders() async {
     final user = await StorageService.getUser();

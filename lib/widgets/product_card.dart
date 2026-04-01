@@ -10,9 +10,10 @@ import '../utils/app_constants.dart';
 class ProductCard extends StatelessWidget {
   final ProductModel product;
   final VoidCallback? onTap;
+  final VoidCallback? onDelete;
   final bool isShimmer;
 
-  const ProductCard({super.key, required this.product, this.onTap, this.isShimmer = false});
+  const ProductCard({super.key, required this.product, this.onTap, this.onDelete, this.isShimmer = false});
 
   @override
   Widget build(BuildContext context) {
@@ -66,28 +67,121 @@ class ProductCard extends StatelessWidget {
   }
 
   Widget _buildProductImage() {
-    return Container(
-      height: SizeUtils.getHeight(200),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.border.withOpacity(0.1),
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(SizeUtils.radius4), topRight: Radius.circular(SizeUtils.radius4)),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(SizeUtils.radius4), topRight: Radius.circular(SizeUtils.radius4)),
-        child: product.imageUrl != null && product.imageUrl!.isNotEmpty
-            ? Image.network(
-                product.imageUrl!,
-                fit: BoxFit.fill,
-                errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(),
-                loadingBuilder: (context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
-                  return _buildLoadingImage();
-                },
-              )
-            : _buildPlaceholderImage(),
+    return Stack(
+      children: [
+        Container(
+          height: SizeUtils.getHeight(200),
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: AppColors.border.withOpacity(0.1),
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(SizeUtils.radius4), topRight: Radius.circular(SizeUtils.radius4)),
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(SizeUtils.radius4), topRight: Radius.circular(SizeUtils.radius4)),
+            child: product.imageUrl != null && product.imageUrl!.isNotEmpty
+                ? Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      // Always show loader in background
+                      _buildLoadingImage(),
+                      // Image on top
+                      Image.network(
+                        product.imageUrl!,
+                        fit: BoxFit.fill,
+                        errorBuilder: (context, error, stackTrace) => _buildPlaceholderImage(),
+                        frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                          if (wasSynchronouslyLoaded) {
+                            return child;
+                          }
+                          return AnimatedOpacity(
+                            opacity: frame == null ? 0 : 1,
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeOut,
+                            child: child,
+                          );
+                        },
+                      ),
+                    ],
+                  )
+                : _buildPlaceholderImage(),
+          ),
+        ),
+        // Three-dot menu at top right
+        Positioned(
+          top: SizeUtils.spacing8,
+          right: SizeUtils.spacing8,
+          child: _buildMenuButton(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMenuButton() {
+    return Builder(
+      builder: (context) => GestureDetector(
+        onTap: () => _showProductMenu(context),
+        child: Container(
+          padding: EdgeInsets.all(SizeUtils.spacing6),
+          decoration: BoxDecoration(
+            color: AppColors.surface.withOpacity(0.9),
+            borderRadius: BorderRadius.circular(SizeUtils.radius6),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.textSecondary.withOpacity(0.2),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+          child: Icon(
+            Icons.more_vert,
+            size: SizeUtils.getWidth(18),
+            color: AppColors.textPrimary,
+          ),
+        ),
       ),
     );
+  }
+
+  void _showProductMenu(BuildContext context) {
+    final RenderBox button = context.findRenderObject() as RenderBox;
+    final RenderBox overlay = Navigator.of(context).overlay!.context.findRenderObject() as RenderBox;
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(Offset.zero, ancestor: overlay),
+        button.localToGlobal(button.size.bottomRight(Offset.zero), ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    showMenu(
+      context: context,
+      position: position,
+      color: AppColors.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(SizeUtils.radius8),
+        side: BorderSide(color: AppColors.border),
+      ),
+      items: [
+        PopupMenuItem(
+          value: 'delete',
+          child: Row(
+            children: [
+              Icon(Icons.delete_outline, size: SizeUtils.getWidth(18), color: AppColors.error),
+              AppConstants.smallHorizontalSpace,
+              Text(
+                'Delete',
+                style: AppTextStyles.bodyMedium(color: AppColors.error, fontWeight: FontWeight.w500),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ).then((value) {
+      if (value == 'delete' && onDelete != null) {
+        onDelete!();
+      }
+    });
   }
 
   Widget _buildPlaceholderImage() {
@@ -102,7 +196,12 @@ class ProductCard extends StatelessWidget {
   Widget _buildLoadingImage() {
     return Container(
       color: AppColors.border.withOpacity(0.1),
-      child: Center(child: CircularProgressIndicator(color: AppColors.primary, strokeWidth: 2)),
+      child: Center(
+        child: CircularProgressIndicator(
+          color: AppColors.primary,
+          strokeWidth: 2,
+        ),
+      ),
     );
   }
 

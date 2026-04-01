@@ -60,4 +60,15 @@ class AppRepository {
       throw ApiException(message: 'An unexpected error occurred while fetching product details', statusCode: 0);
     }
   }
+
+  // Delete product by ID
+  static Future<Map<String, dynamic>> deleteProduct(String productId) async {
+    try {
+      return await ApiService.deleteProduct(productId);
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(message: 'An unexpected error occurred while deleting product', statusCode: 0);
+    }
+  }
 }

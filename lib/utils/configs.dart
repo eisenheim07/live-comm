@@ -12,6 +12,7 @@ class ApiConfig {
   static const String REGISTER = "auth/register";
   static const String PROFILE = "auth/me";
   static const String PRODUCTS = "products";
+  static const String DELETE_PRODUCT = "products"; // DELETE /products/:id
 
   // Logging Configuration
   static const bool enableHttpLogging = true; // Set to false in production
@@ -104,7 +105,7 @@ class ApiConfig {
           message: responseData['message'] ?? getErrorMessage(statusCode),
           statusCode: statusCode,
           data: responseData,
-          isBackendError: false,
+          isBackendError: true, // Changed to true to show backend message
         );
       }
     } on FormatException {

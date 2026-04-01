@@ -43,3 +43,12 @@ class ProductsRefreshing extends ProductsState {
   @override
   List<Object?> get props => [products];
 }
+
+class ProductsDeleting extends ProductsState {
+  final List<ProductModel> products;
+
+  const ProductsDeleting(this.products);
+
+  @override
+  List<Object?> get props => [products];
+}

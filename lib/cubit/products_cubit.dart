@@ -64,4 +64,39 @@ class ProductsCubit extends Cubit<ProductsState> {
       emit(const ProductsInitial());
     }
   }
+
+  /// Delete product by ID
+  Future<void> deleteProduct(String productId) async {
+    final currentState = state;
+    if (currentState is ProductsLoaded) {
+      emit(ProductsDeleting(currentState.products));
+    }
+
+    try {
+      AppLogger.info('Deleting product: $productId', 'Products');
+      
+      await AppRepository.deleteProduct(productId);
+      
+      AppLogger.info('Product deleted successfully: $productId', 'Products');
+      
+      // Refresh the products list after deletion
+      await refreshProducts();
+    } on ApiException catch (e) {
+      AppLogger.error('Product delete API Error: ${e.message}', 'Products', e);
+      
+      // Restore previous state and show error
+      if (currentState is ProductsLoaded) {
+        emit(ProductsLoaded(currentState.products));
+      }
+      emit(ProductsError(e.message, exception: e));
+    } catch (e) {
+      AppLogger.error('Product delete Unexpected Error', 'Products', e);
+      
+      // Restore previous state and show error
+      if (currentState is ProductsLoaded) {
+        emit(ProductsLoaded(currentState.products));
+      }
+      emit(const ProductsError('Failed to delete product. Please try again.'));
+    }
+  }
 }

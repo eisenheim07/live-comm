@@ -50,10 +50,16 @@ class ProductsScreenView extends StatelessWidget {
   Widget _buildBody(BuildContext context, ProductsState state) {
     if (state is ProductsLoading) {
       return _buildLoadingState();
-    } else if (state is ProductsLoaded || state is ProductsRefreshing) {
-      final products = state is ProductsLoaded ? state.products : (state as ProductsRefreshing).products;
+    } else if (state is ProductsLoaded || state is ProductsRefreshing || state is ProductsDeleting) {
+      final products = state is ProductsLoaded 
+          ? state.products 
+          : state is ProductsRefreshing 
+              ? state.products 
+              : (state as ProductsDeleting).products;
 
-      return _buildProductsList(context, products, state is ProductsRefreshing);
+      final isShowingShimmer = state is ProductsRefreshing || state is ProductsDeleting;
+
+      return _buildProductsList(context, products, isShowingShimmer);
     } else if (state is ProductsError) {
       return _buildErrorState(context);
     } else {
@@ -145,11 +151,14 @@ class ProductsScreenView extends StatelessWidget {
                     ),
                   );
                 },
+                onDelete: () {
+                  _showDeleteConfirmation(context, product);
+                },
               );
             },
           ),
 
-          // Show shimmer overlay during refresh
+          // Show shimmer overlay during refresh or delete
           if (isRefreshing)
             Container(
               color: AppColors.background,
@@ -213,6 +222,53 @@ class ProductsScreenView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  void _showDeleteConfirmation(BuildContext context, dynamic product) {
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SizeUtils.radius12)),
+          title: Text(
+            'Delete Product',
+            style: AppTextStyles.titleMedium(color: AppColors.textPrimary, fontWeight: FontWeight.w600),
+          ),
+          content: Text(
+            'Are you sure you want to delete "${product.title ?? 'this product'}"? This action cannot be undone.',
+            style: AppTextStyles.bodyMedium(color: AppColors.textSecondary),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(
+                'Cancel',
+                style: AppTextStyles.bodyMedium(color: AppColors.textSecondary, fontWeight: FontWeight.w500),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                if (product.id != null) {
+                  context.read<ProductsCubit>().deleteProduct(product.id!);
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.error,
+                foregroundColor: AppColors.white,
+                padding: EdgeInsets.symmetric(horizontal: SizeUtils.spacing16, vertical: SizeUtils.spacing8),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SizeUtils.radius8)),
+              ),
+              child: Text(
+                'Delete',
+                style: AppTextStyles.bodyMedium(color: AppColors.white, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
