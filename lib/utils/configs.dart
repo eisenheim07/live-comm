@@ -11,6 +11,7 @@ class ApiConfig {
   static const String LOGIN = "auth/login";
   static const String REGISTER = "auth/register";
   static const String PROFILE = "auth/me";
+  static const String PRODUCTS = "products";
 
   // Logging Configuration
   static const bool enableHttpLogging = true; // Set to false in production

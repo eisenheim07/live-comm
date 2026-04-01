@@ -1,4 +1,5 @@
 import '../models/user_model.dart';
+import '../models/product_model.dart';
 import '../models/login_request.dart';
 import '../models/signup_request.dart';
 import '../services/api_service.dart';
@@ -12,10 +13,7 @@ class AppRepository {
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException(
-        message: 'An unexpected error occurred during login',
-        statusCode: 0,
-      );
+      throw ApiException(message: 'An unexpected error occurred during login', statusCode: 0);
     }
   }
 
@@ -26,10 +24,7 @@ class AppRepository {
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException(
-        message: 'An unexpected error occurred during signup',
-        statusCode: 0,
-      );
+      throw ApiException(message: 'An unexpected error occurred during signup', statusCode: 0);
     }
   }
 
@@ -40,10 +35,29 @@ class AppRepository {
     } on ApiException {
       rethrow;
     } catch (e) {
-      throw ApiException(
-        message: 'An unexpected error occurred while fetching profile',
-        statusCode: 0,
-      );
+      throw ApiException(message: 'An unexpected error occurred while fetching profile', statusCode: 0);
+    }
+  }
+
+  // Products APIs
+  static Future<List<ProductModel>> getProducts({String? category, String? isLive}) async {
+    try {
+      return await ApiService.getProducts(category: category, isLive: isLive);
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(message: 'An unexpected error occurred while fetching products', statusCode: 0);
+    }
+  }
+
+  // Get single product details by ID
+  Future<Map<String, dynamic>> getProductDetails(String productId) async {
+    try {
+      return await ApiService.getProductDetails(productId);
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(message: 'An unexpected error occurred while fetching product details', statusCode: 0);
     }
   }
 }

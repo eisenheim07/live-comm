@@ -16,20 +16,17 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => SplashCubit()..checkAuthenticationStatus(),
-      child: BlocListener<SplashCubit, SplashState>(
-        listener: (context, state) {
-          if (state is SplashAuthenticated) {
-            // User is authenticated - navigate to main navigation
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigationScreen()));
-          } else if (state is SplashUnauthenticated) {
-            // User is not authenticated - navigate to login
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
-          }
-        },
-        child: const SplashScreenView(),
-      ),
+    return BlocListener<SplashCubit, SplashState>(
+      listener: (context, state) {
+        if (state is SplashAuthenticated) {
+          // User is authenticated - navigate to main navigation
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigationScreen()));
+        } else if (state is SplashUnauthenticated) {
+          // User is not authenticated - navigate to login
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+        }
+      },
+      child: const SplashScreenView(),
     );
   }
 }

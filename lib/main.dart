@@ -5,6 +5,8 @@ import 'utils/size_utils.dart';
 import 'utils/app_logger.dart';
 import 'screens/splash_screen.dart';
 import 'cubit/auth_cubit.dart';
+import 'cubit/splash_cubit.dart';
+import 'cubit/products_cubit.dart';
 import 'services/app_initializer.dart';
 
 void main() async {
@@ -19,8 +21,12 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AuthCubit(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AuthCubit()),
+        BlocProvider(create: (context) => SplashCubit()..checkAuthenticationStatus()),
+        BlocProvider(create: (context) => ProductsCubit()),
+      ],
       child: MaterialApp(
         title: 'Bazaar Live',
         debugShowCheckedModeBanner: false,

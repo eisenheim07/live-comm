@@ -10,7 +10,6 @@ import '../widgets/button_widget.dart';
 import '../widgets/loading_overlay.dart';
 import '../widgets/error_bottom_sheet.dart';
 import '../widgets/custom_app_bar.dart';
-import '../widgets/shimmer_widget.dart';
 import '../cubit/profile_cubit.dart';
 import '../cubit/profile_state.dart';
 
@@ -98,7 +97,7 @@ class _ProfileScreenViewState extends State<ProfileScreenView> {
   Widget _buildBody(ProfileState state, bool isEditing, bool isLoading) {
     // Show shimmer during initial loading or error states
     if (state is ProfileLoading || state is ProfileError) {
-      return const ProfileShimmer();
+      return _buildProfileShimmer();
     }
 
     // Show normal content for loaded state
@@ -111,6 +110,25 @@ class _ProfileScreenViewState extends State<ProfileScreenView> {
 
         // Profile Form (read-only)
         _buildProfileForm(),
+      ],
+    );
+  }
+
+  Widget _buildProfileShimmer() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _ShimmerBox(width: SizeUtils.getWidth(150), height: SizeUtils.getHeight(24)),
+        AppConstants.smallVerticalSpace,
+        _ShimmerBox(width: SizeUtils.getWidth(200), height: SizeUtils.getHeight(16)),
+        AppConstants.extraLargeVerticalSpace,
+        _ShimmerBox(width: double.infinity, height: SizeUtils.getHeight(56)),
+        AppConstants.mediumVerticalSpace,
+        _ShimmerBox(width: double.infinity, height: SizeUtils.getHeight(56)),
+        AppConstants.mediumVerticalSpace,
+        _ShimmerBox(width: double.infinity, height: SizeUtils.getHeight(56)),
+        AppConstants.mediumVerticalSpace,
+        _ShimmerBox(width: double.infinity, height: SizeUtils.getHeight(56)),
       ],
     );
   }
@@ -195,8 +213,8 @@ class _ProfileScreenViewState extends State<ProfileScreenView> {
 
           // Name Field
           _buildFormField(
-            controller: _nameController, 
-            label: 'Full Name', 
+            controller: _nameController,
+            label: 'Full Name',
             icon: Icons.person_outline,
             fieldName: 'name',
             isEditing: _editingField == 'name',
@@ -205,8 +223,8 @@ class _ProfileScreenViewState extends State<ProfileScreenView> {
 
           // Email Field
           _buildFormField(
-            controller: _emailController, 
-            label: 'Email Address', 
+            controller: _emailController,
+            label: 'Email Address',
             icon: Icons.email_outlined,
             fieldName: 'email',
             isEditing: _editingField == 'email',
@@ -215,8 +233,8 @@ class _ProfileScreenViewState extends State<ProfileScreenView> {
 
           // Phone Field
           _buildFormField(
-            controller: _phoneController, 
-            label: 'Phone Number', 
+            controller: _phoneController,
+            label: 'Phone Number',
             icon: Icons.phone_outlined,
             fieldName: 'phone',
             isEditing: _editingField == 'phone',
@@ -227,8 +245,8 @@ class _ProfileScreenViewState extends State<ProfileScreenView> {
   }
 
   Widget _buildFormField({
-    required TextEditingController controller, 
-    required String label, 
+    required TextEditingController controller,
+    required String label,
     required IconData icon,
     required String fieldName,
     required bool isEditing,
@@ -255,16 +273,10 @@ class _ProfileScreenViewState extends State<ProfileScreenView> {
               child: Container(
                 padding: EdgeInsets.all(SizeUtils.spacing4),
                 decoration: BoxDecoration(
-                  color: isEditing 
-                    ? AppColors.primary.withOpacity(0.2) 
-                    : AppColors.primary.withOpacity(0.1),
+                  color: isEditing ? AppColors.primary.withOpacity(0.2) : AppColors.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(SizeUtils.radius4),
                 ),
-                child: Icon(
-                  isEditing ? Icons.check : Icons.edit,
-                  color: AppColors.primary,
-                  size: SizeUtils.getWidth(14),
-                ),
+                child: Icon(isEditing ? Icons.check : Icons.edit, color: AppColors.primary, size: SizeUtils.getWidth(14)),
               ),
             ),
           ],
@@ -298,6 +310,59 @@ class _ProfileScreenViewState extends State<ProfileScreenView> {
           ),
         ),
       ],
+    );
+  }
+}
+
+
+// Shimmer Widget for Loading State
+class _ShimmerBox extends StatefulWidget {
+  final double? width;
+  final double height;
+  final BorderRadius? borderRadius;
+
+  const _ShimmerBox({this.width, required this.height, this.borderRadius});
+
+  @override
+  State<_ShimmerBox> createState() => _ShimmerBoxState();
+}
+
+class _ShimmerBoxState extends State<_ShimmerBox> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))..repeat();
+    _animation = Tween<double>(begin: -1.0, end: 2.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            borderRadius: widget.borderRadius ?? BorderRadius.circular(SizeUtils.radius8),
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [AppColors.border.withOpacity(0.3), AppColors.border.withOpacity(0.5), AppColors.border.withOpacity(0.3)],
+              stops: [_animation.value - 0.3, _animation.value, _animation.value + 0.3].map((stop) => stop.clamp(0.0, 1.0)).toList(),
+            ),
+          ),
+        );
+      },
     );
   }
 }

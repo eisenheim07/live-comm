@@ -4,6 +4,7 @@ import '../services/http_service.dart';
 import '../services/service_locator_simple.dart';
 import '../services/storage_service.dart';
 import '../models/user_model.dart';
+import '../models/product_model.dart';
 import '../models/login_request.dart';
 import '../models/signup_request.dart';
 
@@ -45,6 +46,44 @@ class ApiService {
       );
       
       return UserModel.fromJson(response);
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Products Endpoints
+  static Future<List<ProductModel>> getProducts({String? category, String? isLive}) async {
+    try {
+      final queryParams = <String, dynamic>{};
+      if (category != null && category.isNotEmpty) {
+        queryParams['category'] = category;
+      }
+      if (isLive != null && isLive.isNotEmpty) {
+        queryParams['is_live'] = isLive;
+      }
+
+      final response = await _httpService.get(
+        endpoint: ApiConfig.PRODUCTS,
+        headers: await _getAuthHeaders(),
+        queryParameters: queryParams,
+      );
+      
+      final List<dynamic> productsData = response['data'] ?? response;
+      return productsData.map((json) => ProductModel.fromJson(json)).toList();
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Get single product details by ID
+  static Future<Map<String, dynamic>> getProductDetails(String productId) async {
+    try {
+      final response = await _httpService.get(
+        endpoint: '${ApiConfig.PRODUCTS}/$productId',
+        headers: await _getAuthHeaders(),
+      );
+      
+      return response;
     } catch (e) {
       rethrow;
     }

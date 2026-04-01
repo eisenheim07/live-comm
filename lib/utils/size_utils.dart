@@ -69,6 +69,8 @@ class SizeUtils {
   }
 
   // Common spacing values
+  static double get spacing2 => getWidth(2);
+
   static double get spacing4 => getWidth(4);
 
   static double get spacing6 => getWidth(6);
