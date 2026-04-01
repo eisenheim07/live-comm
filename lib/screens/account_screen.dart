@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:livecomm/screens/add_inventory.dart';
 import '../utils/app_colors.dart';
 import '../utils/size_utils.dart';
 import '../utils/app_text_styles.dart';
@@ -132,7 +133,7 @@ class AccountScreen extends StatelessWidget {
               _buildMenuItem(
                 context: context,
                 icon: Icons.inventory_2_outlined,
-                title: 'Products',
+                title: 'Add Inventory',
                 subtitle: 'Manage your products and inventory',
                 onTap: () => _navigateToProducts(context),
                 showDivider: false,
@@ -222,7 +223,6 @@ class AccountScreen extends StatelessWidget {
   }
 
   void _navigateToProducts(BuildContext context) {
-    // TODO: Navigate to Products screen
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Products screen will be implemented'), backgroundColor: AppColors.primary));
+    Navigator.push(context, MaterialPageRoute(builder: (context) => AddProducts()));
   }
 }
