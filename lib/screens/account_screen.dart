@@ -181,7 +181,6 @@ class AccountScreen extends StatelessWidget {
                           title,
                           style: AppTextStyles.titleSmall(color: AppColors.textPrimary, fontWeight: FontWeight.w500),
                         ),
-                        AppConstants.smallVerticalSpace,
                         Text(subtitle, style: AppTextStyles.bodySmall(color: AppColors.textSecondary)),
                       ],
                     ),
