@@ -11,27 +11,8 @@ class NavigationCubit extends Cubit<NavigationState> {
     emit(NavigationChanged(index));
   }
 
-  /// Get current selected index
-  int get currentIndex {
-    final state = this.state;
-    if (state is NavigationChanged) {
-      return state.selectedIndex;
-    }
-    return 0;
-  }
-
   /// Navigate to Dashboard tab
   void goToDashboard() {
     changeTab(0);
-  }
-
-  /// Navigate to Orders tab
-  void goToOrders() {
-    changeTab(1);
-  }
-
-  /// Navigate to Account tab
-  void goToAccount() {
-    changeTab(2);
   }
 }

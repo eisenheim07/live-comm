@@ -12,7 +12,7 @@ class OrdersScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: CustomAppBarFactory.create(title: 'Orders', showBackButton: true),
+      appBar: CustomAppBarFactory.create(title: 'My Orders', showBackButton: true),
       body: Padding(
         padding: SizeUtils.scaffoldPaddingSmall,
         child: Center(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:livecomm/screens/products_screen.dart';
 import '../cubit/navigation_cubit.dart';
 import '../cubit/navigation_state.dart';
 import '../utils/app_logger.dart';
@@ -22,7 +23,7 @@ class MainNavigationView extends StatelessWidget {
   const MainNavigationView({super.key});
 
   // List of screens corresponding to each tab
-  static const List<Widget> _screens = [DashboardScreen(), OrdersScreen(), AccountScreen()];
+  static const List<Widget> _screens = [DashboardScreen(), ProductsScreen(), OrdersScreen(), AccountScreen()];
 
   @override
   Widget build(BuildContext context) {
