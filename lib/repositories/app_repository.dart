@@ -32,4 +32,18 @@ class AppRepository {
       );
     }
   }
+
+  // Profile APIs
+  static Future<UserModel> getProfile() async {
+    try {
+      return await ApiService.getProfile();
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(
+        message: 'An unexpected error occurred while fetching profile',
+        statusCode: 0,
+      );
+    }
+  }
 }

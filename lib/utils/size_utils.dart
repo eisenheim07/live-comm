@@ -71,6 +71,8 @@ class SizeUtils {
   // Common spacing values
   static double get spacing4 => getWidth(4);
 
+  static double get spacing6 => getWidth(6);
+
   static double get spacing8 => getWidth(8);
 
   static double get spacing12 => getWidth(12);
@@ -118,6 +120,8 @@ class SizeUtils {
 
   // Common radius values
   static double get radius4 => getRadius(4);
+
+  static double get radius6 => getRadius(6);
 
   static double get radius8 => getRadius(8);
 

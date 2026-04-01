@@ -25,6 +25,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: AppColors.surface,
       toolbarHeight: SizeUtils.getHeight(50),
+      automaticallyImplyLeading: false,
       title: Row(
         children: [
           // Back Button

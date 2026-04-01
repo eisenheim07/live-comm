@@ -16,25 +16,11 @@ class AuthCubit extends Cubit<AuthState> {
     try {
       final loginRequest = LoginRequest(email: email, password: password);
       final user = await AppRepository.login(loginRequest);
-
-      // Debug logging
-      AppLogger.logObject('User received', user, 'Login');
-      AppLogger.debug('User token: ${user.token}', 'Login');
-
-      // Store user data and token
       await StorageService.saveUser(user);
-      
-      // Verify user was saved
-      final savedUser = await StorageService.getUser();
-      AppLogger.logObject('User saved', savedUser, 'Login');
-      AppLogger.debug('Saved user token: ${savedUser?.token}', 'Login');
-
       emit(AuthSuccess(user));
     } on ApiException catch (e) {
-      AppLogger.error('Login API Error: ${e.message}', 'Login', e);
       emit(AuthError(e.message, exception: e));
     } catch (e) {
-      AppLogger.error('Login Unexpected Error', 'Login', e);
       emit(const AuthError('An unexpected error occurred. Please try again.'));
     }
   }
