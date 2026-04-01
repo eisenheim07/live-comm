@@ -181,9 +181,9 @@ class SizeUtils {
   static EdgeInsets get cardPaddingLarge => getPadding(all: 20);
 
   // Scaffold Padding
-  static EdgeInsets get scaffoldPadding => getPadding(all: 16);
-
   static EdgeInsets get scaffoldPaddingSmall => getPadding(all: 8);
+
+  static EdgeInsets get scaffoldPadding => getPadding(all: 16);
 
   static EdgeInsets get scaffoldPaddingLarge => getPadding(all: 20);
 
