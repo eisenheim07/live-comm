@@ -7,6 +7,7 @@ import 'screens/splash_screen.dart';
 import 'cubit/auth_cubit.dart';
 import 'cubit/splash_cubit.dart';
 import 'cubit/products_cubit.dart';
+import 'cubit/add_product_cubit.dart';
 import 'services/app_initializer.dart';
 
 void main() async {
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => AuthCubit()),
         BlocProvider(create: (context) => SplashCubit()..checkAuthenticationStatus()),
         BlocProvider(create: (context) => ProductsCubit()),
+        BlocProvider(create: (context) => AddProductCubit()),
       ],
       child: MaterialApp(
         title: 'Bazaar Live',
