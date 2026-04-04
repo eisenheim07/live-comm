@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
-import 'package:livecomm/screens/dashboard_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../utils/app_colors.dart';
 import '../utils/app_constants.dart';
@@ -11,6 +10,8 @@ import '../widgets/error_bottom_sheet.dart';
 import '../widgets/button_widget.dart';
 import '../cubit/streaming_cubit.dart';
 import '../cubit/streaming_state.dart';
+import 'dashboard_screen.dart';
+import 'permission_screen.dart';
 
 class StreamingScreen extends StatefulWidget {
   final String appId;
@@ -32,16 +33,23 @@ class _StreamingScreenState extends State<StreamingScreen> {
   late final StreamingCubit _cubit;
   bool _isMuted = false;
   bool _isCameraOff = false;
+  bool _showPermissionScreen = true;
 
   @override
   void initState() {
     super.initState();
     _cubit = StreamingCubit();
-    _requestPermissionsAndStart();
   }
 
-  Future<void> _requestPermissionsAndStart() async {
-    await _cubit.requestPermissions();
+  void _onPermissionsGranted() {
+    setState(() {
+      _showPermissionScreen = false;
+    });
+    _cubit.initializeAgora(
+      appId: widget.appId,
+      channelName: widget.channelName,
+      token: widget.token,
+    );
   }
 
   @override
@@ -78,8 +86,7 @@ class _StreamingScreenState extends State<StreamingScreen> {
     
     // Always navigate back regardless of leave channel result
     if (mounted) {
-      Navigator.of(context).pop();
-      Navigator.push(
+      Navigator.pushReplacement(
         context,
         MaterialPageRoute(
           builder: (context) => DashboardScreen(),
@@ -90,27 +97,16 @@ class _StreamingScreenState extends State<StreamingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_showPermissionScreen) {
+      return PermissionScreen(
+        onPermissionsGranted: _onPermissionsGranted,
+      );
+    }
+
     return BlocConsumer<StreamingCubit, StreamingState>(
       bloc: _cubit,
       listener: (context, state) {
-        if (state is StreamingPermissionGranted) {
-          _cubit.initializeAgora(
-            appId: widget.appId,
-            channelName: widget.channelName,
-            token: widget.token,
-          );
-        } else if (state is StreamingPermissionDenied) {
-          ErrorBottomSheet.showError(
-            context: context,
-            title: 'Permission Denied',
-            message: state.message,
-            buttonText: 'Open Settings',
-            onPressed: () {
-              openAppSettings();
-              Navigator.of(context).pop();
-            },
-          );
-        } else if (state is StreamingError) {
+        if (state is StreamingError) {
           ErrorBottomSheet.showError(
             context: context,
             title: 'Streaming Error',

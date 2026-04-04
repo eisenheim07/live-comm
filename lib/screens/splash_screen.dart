@@ -10,6 +10,7 @@ import '../cubit/splash_cubit.dart';
 import '../cubit/splash_state.dart';
 import 'login_email.dart';
 import 'main_navigation_screen.dart';
+import 'permission_screen.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -18,12 +19,33 @@ class SplashScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<SplashCubit, SplashState>(
       listener: (context, state) {
-        if (state is SplashAuthenticated) {
-          // User is authenticated - navigate to main navigation
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const MainNavigationScreen()));
+        if (state is SplashPermissionsGranted) {
+          // Permissions granted - navigate to main navigation (dashboard)
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
+          );
+        } else if (state is SplashPermissionsDenied) {
+          // Permissions denied - navigate to permission screen
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PermissionScreen(
+                onPermissionsGranted: () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
+                  );
+                },
+              ),
+            ),
+          );
         } else if (state is SplashUnauthenticated) {
           // User is not authenticated - navigate to login
-          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()),
+          );
         }
       },
       child: const SplashScreenView(),

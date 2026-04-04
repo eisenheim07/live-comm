@@ -15,6 +15,18 @@ class SplashLoading extends SplashState {
   const SplashLoading();
 }
 
+class SplashCheckingPermissions extends SplashState {
+  const SplashCheckingPermissions();
+}
+
+class SplashPermissionsGranted extends SplashState {
+  const SplashPermissionsGranted();
+}
+
+class SplashPermissionsDenied extends SplashState {
+  const SplashPermissionsDenied();
+}
+
 class SplashAuthenticated extends SplashState {
   const SplashAuthenticated();
 }

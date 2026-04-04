@@ -22,6 +22,7 @@ dependencies:
   another_flushbar:
   agora_rtc_engine: ^6.3.2
   permission_handler: ^11.3.1
+  camera: ^0.11.0+2
 
 dev_dependencies:
   flutter_test:
