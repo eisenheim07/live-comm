@@ -143,13 +143,17 @@ class ProductsScreenView extends StatelessWidget {
               final product = products[index];
               return ProductCard(
                 product: product,
-                onTap: () {
-                  Navigator.push(
+                onTap: () async {
+                  final result = await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => ProductDetailsScreen(product: product, productId: product.id),
                     ),
                   );
+                  
+                  if (result == true) {
+                    context.read<ProductsCubit>().fetchProducts();
+                  }
                 },
                 onDelete: () {
                   _showDeleteConfirmation(context, product);

@@ -140,6 +140,40 @@ class ApiService {
     }
   }
 
+  // Update existing product
+  static Future<Map<String, dynamic>> updateProduct({
+    required String productId,
+    required String title,
+    required String description,
+    required double price,
+    required double discountPrice,
+    required int stock,
+    required String categoryId,
+    required bool isLiveProduct,
+  }) async {
+    try {
+      final body = {
+        'title': title,
+        'description': description,
+        'price': price,
+        'discount_price': discountPrice,
+        'stock': stock,
+        'category_id': categoryId,
+        'is_live_product': isLiveProduct,
+      };
+
+      final response = await _httpService.put(
+        endpoint: '${ApiConfig.UPDATE_PRODUCT}/$productId',
+        body: body,
+        headers: await _getAuthHeaders(),
+      );
+      
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   // Helper method to get authorization headers
   static Future<Map<String, String>> _getAuthHeaders() async {
     final user = await StorageService.getUser();

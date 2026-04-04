@@ -103,4 +103,36 @@ class AppRepository {
       throw ApiException(message: 'An unexpected error occurred while adding product', statusCode: 0);
     }
   }
+
+  // Update existing product
+  static Future<ProductModel> updateProduct({
+    required String productId,
+    required String title,
+    required String description,
+    required double price,
+    required double discountPrice,
+    required int stock,
+    required String categoryId,
+    required bool isLiveProduct,
+  }) async {
+    try {
+      final response = await ApiService.updateProduct(
+        productId: productId,
+        title: title,
+        description: description,
+        price: price,
+        discountPrice: discountPrice,
+        stock: stock,
+        categoryId: categoryId,
+        isLiveProduct: isLiveProduct,
+      );
+      
+      final productData = response['data'] ?? response;
+      return ProductModel.fromJson(productData);
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(message: 'An unexpected error occurred while updating product', statusCode: 0);
+    }
+  }
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:livecomm/widgets/custom_snackbar.dart';
 import '../utils/app_colors.dart';
 import '../utils/size_utils.dart';
 import '../utils/app_text_styles.dart';
@@ -411,7 +412,7 @@ class _SignUpScreenViewState extends State<SignUpScreenView> {
       listener: (context, state) {
         if (state is SignupSuccess) {
           // Show success snackbar and navigate to login
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message), backgroundColor: AppColors.success));
+          context.flushBarSuccessMessage(message: state.message);
           Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
         } else if (state is SignupError) {
           // Show error using bottom sheet

@@ -12,6 +12,22 @@ class ProductDetailsLoaded extends ProductDetailsState {
   ProductDetailsLoaded(this.product);
 }
 
+class ProductDetailsUpdating extends ProductDetailsState {}
+
+class ProductDetailsUpdateSuccess extends ProductDetailsState {
+  final ProductModel product;
+
+  ProductDetailsUpdateSuccess(this.product);
+}
+
+class ProductDetailsUpdateError extends ProductDetailsState {
+  final ProductModel product;
+  final String message;
+  final dynamic exception;
+
+  ProductDetailsUpdateError(this.product, this.message, {this.exception});
+}
+
 class ProductDetailsError extends ProductDetailsState {
   final String message;
   final dynamic exception;

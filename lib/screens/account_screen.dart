@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:livecomm/screens/add_inventory.dart';
+import 'package:livecomm/widgets/custom_snackbar.dart';
 import '../utils/app_colors.dart';
 import '../utils/size_utils.dart';
 import '../utils/app_text_styles.dart';
@@ -211,15 +212,11 @@ class AccountScreen extends StatelessWidget {
   }
 
   void _navigateToTransactions(BuildContext context) {
-    // TODO: Navigate to Transactions screen
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Transactions screen will be implemented'), backgroundColor: AppColors.primary));
+    context.flushBarErrorMessage(message: "COMING SOON");
   }
 
   void _navigateToSettings(BuildContext context) {
-    // TODO: Navigate to Settings screen
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Settings screen will be implemented'), backgroundColor: AppColors.primary));
+    context.flushBarErrorMessage(message: "COMING SOON");
   }
 
   void _navigateToProducts(BuildContext context) {
