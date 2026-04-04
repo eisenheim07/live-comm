@@ -13,6 +13,8 @@ class ApiConfig {
   static const String PROFILE = "auth/me";
   static const String PRODUCTS = "products";
   static const String DELETE_PRODUCT = "products"; // DELETE /products/:id
+  static const String ADD_PRODUCT = "products"; // POST /products
+  static const String UPDATE_PRODUCT = "products"; // PUT /products/:id
 
   // Logging Configuration
   static const bool enableHttpLogging = true; // Set to false in production
