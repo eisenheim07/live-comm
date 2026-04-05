@@ -190,4 +190,45 @@ class ApiService {
       'Authorization': 'Bearer $token',
     };
   }
+
+  // Live Session Endpoints
+
+  // Create live session
+  static Future<Map<String, dynamic>> createLiveSession({
+    required String title,
+    required DateTime startTime,
+    String? thumbnail,
+  }) async {
+    try {
+      final body = {
+        'title': title,
+        'start_time': startTime.toIso8601String(),
+        if (thumbnail != null) 'thumbnail': thumbnail,
+      };
+
+      final response = await _httpService.post(
+        endpoint: ApiConfig.LIVE,
+        body: body,
+        headers: await _getAuthHeaders(),
+      );
+      
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  // Start live session
+  static Future<Map<String, dynamic>> startLiveSession(String liveId) async {
+    try {
+      final response = await _httpService.put(
+        endpoint: '${ApiConfig.LIVE}/$liveId/start',
+        headers: await _getAuthHeaders(),
+      );
+      
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

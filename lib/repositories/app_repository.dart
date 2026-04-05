@@ -135,4 +135,36 @@ class AppRepository {
       throw ApiException(message: 'An unexpected error occurred while updating product', statusCode: 0);
     }
   }
+
+  // Live Session APIs
+  
+  // Create live session
+  Future<Map<String, dynamic>> createLiveSession({
+    required String title,
+    required DateTime startTime,
+    String? thumbnail,
+  }) async {
+    try {
+      return await ApiService.createLiveSession(
+        title: title,
+        startTime: startTime,
+        thumbnail: thumbnail,
+      );
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(message: 'An unexpected error occurred while creating live session', statusCode: 0);
+    }
+  }
+
+  // Start live session
+  Future<Map<String, dynamic>> startLiveSession(String liveId) async {
+    try {
+      return await ApiService.startLiveSession(liveId);
+    } on ApiException {
+      rethrow;
+    } catch (e) {
+      throw ApiException(message: 'An unexpected error occurred while starting live session', statusCode: 0);
+    }
+  }
 }

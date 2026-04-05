@@ -8,6 +8,8 @@ import 'cubit/auth_cubit.dart';
 import 'cubit/splash_cubit.dart';
 import 'cubit/products_cubit.dart';
 import 'cubit/add_product_cubit.dart';
+import 'cubit/live_session_cubit.dart';
+import 'repositories/app_repository.dart';
 import 'services/app_initializer.dart';
 
 void main() async {
@@ -28,6 +30,7 @@ class MyApp extends StatelessWidget {
         BlocProvider(create: (context) => SplashCubit()..checkAuthenticationStatus()),
         BlocProvider(create: (context) => ProductsCubit()),
         BlocProvider(create: (context) => AddProductCubit()),
+        BlocProvider(create: (context) => LiveSessionCubit(AppRepository())),
       ],
       child: MaterialApp(
         title: 'Bazaar Live',
