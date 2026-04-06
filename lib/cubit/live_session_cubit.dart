@@ -9,20 +9,13 @@ class LiveSessionCubit extends Cubit<LiveSessionState> {
   LiveSessionCubit(this._repository) : super(const LiveSessionInitial());
 
   /// Create and start a live session
-  Future<void> createAndStartLiveSession({
-    required String title,
-    String? thumbnail,
-  }) async {
+  Future<void> createAndStartLiveSession({required String title, String? thumbnail}) async {
     try {
       emit(const LiveSessionCreating());
       AppLogger.info('Creating live session: $title', 'LiveSession');
 
       // Step 1: Create live session
-      final createResponse = await _repository.createLiveSession(
-        title: title,
-        startTime: DateTime.now(),
-        thumbnail: thumbnail,
-      );
+      final createResponse = await _repository.createLiveSession(title: title, startTime: DateTime.now(), thumbnail: thumbnail);
 
       if (createResponse['success'] != true) {
         final errorMessage = createResponse['message'] ?? 'Failed to create live session';
@@ -61,19 +54,25 @@ class LiveSessionCubit extends Cubit<LiveSessionState> {
       }
 
       final liveData = startResponse['data'];
-      final jitsiRoom = liveData['jitsi_room'] as String? ?? 'live_$liveId';
+      // Simplify room name - remove special characters that might cause issues
+      final rawRoomName = liveData['jitsi_room'] as String? ?? 'live_$liveId';
+      final jitsiRoom = rawRoomName.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '');
       final jitsiToken = liveData['jitsi_token'] as String?;
-      final jitsiServer = liveData['jitsi_server'] as String? ?? 'meet.jit.si';
+      var jitsiServer = liveData['jitsi_server'] as String?;
+
+      // Handle empty or null server URL
+      if (jitsiServer == null || jitsiServer.trim().isEmpty) {
+        // Use 8x8.vc instead of meet.jit.si - it works better with mobile SDKs
+        jitsiServer = 'https://8x8.vc';
+      } else if (!jitsiServer.startsWith('http://') && !jitsiServer.startsWith('https://')) {
+        // Ensure server URL has protocol
+        jitsiServer = 'https://$jitsiServer';
+      }
 
       AppLogger.success('Live session started: $liveId', 'LiveSession');
-      
-      emit(LiveSessionStarted(
-        liveId: liveId,
-        title: title,
-        jitsiRoom: jitsiRoom,
-        jitsiToken: jitsiToken,
-        jitsiServer: jitsiServer,
-      ));
+      AppLogger.debug('Jitsi Server: $jitsiServer, Room: $jitsiRoom (original: $rawRoomName)', 'LiveSession');
+
+      emit(LiveSessionStarted(liveId: liveId, title: title, jitsiRoom: jitsiRoom, jitsiToken: jitsiToken, jitsiServer: jitsiServer));
     } catch (e) {
       AppLogger.error('Error starting live session', 'LiveSession', e);
       emit(LiveSessionError('Failed to start live session: ${e.toString()}'));

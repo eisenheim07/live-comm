@@ -51,17 +51,18 @@ class ProductsScreenView extends StatelessWidget {
     if (state is ProductsLoading) {
       return _buildLoadingState();
     } else if (state is ProductsLoaded || state is ProductsRefreshing || state is ProductsDeleting) {
-      final products = state is ProductsLoaded 
-          ? state.products 
-          : state is ProductsRefreshing 
-              ? state.products 
-              : (state as ProductsDeleting).products;
+      final products = state is ProductsLoaded
+          ? state.products
+          : state is ProductsRefreshing
+          ? state.products
+          : (state as ProductsDeleting).products;
 
       final isShowingShimmer = state is ProductsRefreshing || state is ProductsDeleting;
 
       return _buildProductsList(context, products, isShowingShimmer);
     } else if (state is ProductsError) {
-      return _buildErrorState(context);
+      // return _buildErrorState(context);
+      return _buildProductsList(context, [], true);
     } else {
       return _buildEmptyState();
     }
@@ -126,6 +127,13 @@ class ProductsScreenView extends StatelessWidget {
   }
 
   Widget _buildProductsList(BuildContext context, List products, bool isRefreshing) {
+    if (products.isEmpty && isRefreshing) {
+      return Container(
+        color: AppColors.background,
+        child: ListView.builder(padding: SizeUtils.scaffoldPaddingSmall, itemCount: 3, itemBuilder: (context, index) => _buildProductShimmer()),
+      );
+    }
+
     if (products.isEmpty) {
       return _buildEmptyState();
     }
@@ -150,7 +158,7 @@ class ProductsScreenView extends StatelessWidget {
                       builder: (context) => ProductDetailsScreen(product: product, productId: product.id),
                     ),
                   );
-                  
+
                   if (result == true) {
                     context.read<ProductsCubit>().fetchProducts();
                   }

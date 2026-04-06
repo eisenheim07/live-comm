@@ -4,8 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:livecomm/widgets/custom_snackbar.dart';
 import '../utils/app_colors.dart';
 import '../utils/size_utils.dart';
-import '../utils/app_text_styles.dart';
-import '../utils/app_constants.dart';
 import '../widgets/custom_app_bar.dart';
 import '../widgets/button_widget.dart';
 import '../cubit/live_session_cubit.dart';
@@ -25,8 +23,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 
-  void _startStreaming() {
-    context.read<LiveSessionCubit>().createAndStartLiveSession(title: 'Live Shopping Session', thumbnail: 'https://example.com/thumbnail.jpg');
+  _startStreaming() =>
+      context.read<LiveSessionCubit>().createAndStartLiveSession(title: 'Live Shopping Session', thumbnail: 'https://example.com/thumbnail.jpg');
+
+  Future<void> _navigateToStreaming(LiveSessionStarted state) async {
+    if (!mounted) return;
+
+    // TODO: Implement streaming functionality
+    context.flushBarSuccessMessage(message: 'Live session started! Session ID: ${state.liveId}');
   }
 
   @override
@@ -37,8 +41,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           context.flushBarErrorMessage(message: state.message);
         } else if (state is LiveSessionStarted) {
           context.flushBarSuccessMessage(message: 'Live session started successfully!');
-          // TODO: Navigate to streaming screen with Jitsi
-          // Navigator.push(context, MaterialPageRoute(builder: (context) => JitsiStreamingScreen(...)));
+          _navigateToStreaming(state);
         }
       },
       child: Scaffold(
