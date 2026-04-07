@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import '../utils/app_colors.dart';
@@ -25,20 +26,31 @@ class _StreamingScreenState extends State<StreamingScreen> {
   late final StreamingCubit _cubit;
   bool _isMuted = false;
   bool _isCameraOff = false;
+  bool _showControls = true;
 
   @override
   void initState() {
     super.initState();
     _cubit = StreamingCubit();
+    // Hide status bar for immersive streaming experience
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     // Initialize Agora immediately since permissions are already granted
     _cubit.initializeAgora(appId: widget.appId, channelName: widget.channelName, token: widget.token);
   }
 
   @override
   void dispose() {
+    // Restore status bar when leaving streaming screen
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _cubit.dispose();
     _cubit.close();
     super.dispose();
+  }
+
+  void _toggleControls() {
+    setState(() {
+      _showControls = !_showControls;
+    });
   }
 
   void _toggleMute() {
@@ -88,7 +100,7 @@ class _StreamingScreenState extends State<StreamingScreen> {
       builder: (context, state) {
         return Scaffold(
           backgroundColor: AppColors.background,
-          body: SafeArea(child: _buildBody(state)),
+          body: _buildBody(state),
         );
       },
     );
@@ -137,17 +149,21 @@ class _StreamingScreenState extends State<StreamingScreen> {
   }
 
   Widget _buildStreamingView() {
-    return Stack(
-      children: [
-        // Main video view
-        _buildVideoView(),
+    return GestureDetector(
+      onTap: _toggleControls,
+      behavior: HitTestBehavior.opaque,
+      child: Stack(
+        children: [
+          // Main video view
+          _buildVideoView(),
 
-        // Top bar with channel info
-        _buildTopBar(),
+          // Top bar with channel info (only show when controls are visible)
+          if (_showControls) _buildTopBar(),
 
-        // Bottom controls
-        _buildBottomControls(),
-      ],
+          // Bottom controls (only show when controls are visible)
+          if (_showControls) _buildBottomControls(),
+        ],
+      ),
     );
   }
 
@@ -171,46 +187,50 @@ class _StreamingScreenState extends State<StreamingScreen> {
       top: 0,
       left: 0,
       right: 0,
-      child: Container(
-        padding: EdgeInsets.all(SizeUtils.spacing16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [AppColors.background.withOpacity(0.8), AppColors.background.withOpacity(0.0)],
+      child: AnimatedOpacity(
+        opacity: _showControls ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 300),
+        child: Container(
+          padding: EdgeInsets.all(SizeUtils.spacing16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [AppColors.background.withOpacity(0.8), AppColors.background.withOpacity(0.0)],
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: SizeUtils.spacing12, vertical: SizeUtils.spacing8),
-              decoration: BoxDecoration(color: AppColors.error, borderRadius: BorderRadius.circular(SizeUtils.radius8)),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: SizeUtils.getWidth(8),
-                    height: SizeUtils.getWidth(8),
-                    decoration: BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
-                  ),
-                  AppConstants.smallHorizontalSpace,
-                  Text(
-                    'LIVE',
-                    style: AppTextStyles.bodySmall(color: AppColors.white, fontWeight: FontWeight.w700),
-                  ),
-                ],
+          child: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.symmetric(horizontal: SizeUtils.spacing8, vertical: SizeUtils.spacing4),
+                decoration: BoxDecoration(color: AppColors.error, borderRadius: BorderRadius.circular(SizeUtils.radius4)),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: SizeUtils.getWidth(8),
+                      height: SizeUtils.getWidth(8),
+                      decoration: BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
+                    ),
+                    AppConstants.smallHorizontalSpace,
+                    Text(
+                      'LIVE',
+                      style: AppTextStyles.bodySmall(color: AppColors.white, fontWeight: FontWeight.w700),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            AppConstants.mediumHorizontalSpace,
-            Expanded(
-              child: Text(
-                widget.channelName,
-                style: AppTextStyles.bodyMedium(color: AppColors.white, fontWeight: FontWeight.w600),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              AppConstants.mediumHorizontalSpace,
+              Expanded(
+                child: Text(
+                  widget.channelName,
+                  style: AppTextStyles.bodyMedium(color: AppColors.white, fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -221,23 +241,27 @@ class _StreamingScreenState extends State<StreamingScreen> {
       bottom: 0,
       left: 0,
       right: 0,
-      child: Container(
-        padding: EdgeInsets.all(SizeUtils.spacing24),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.bottomCenter,
-            end: Alignment.topCenter,
-            colors: [AppColors.background.withOpacity(0.9), AppColors.background.withOpacity(0.0)],
+      child: AnimatedOpacity(
+        opacity: _showControls ? 1.0 : 0.0,
+        duration: const Duration(milliseconds: 300),
+        child: Container(
+          padding: EdgeInsets.all(SizeUtils.spacing24),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors: [AppColors.background.withOpacity(0.9), AppColors.background.withOpacity(0.0)],
+            ),
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildControlButton(icon: _isMuted ? Icons.mic_off : Icons.mic, onPressed: _toggleMute, isActive: !_isMuted),
-            _buildControlButton(icon: _isCameraOff ? Icons.videocam_off : Icons.videocam, onPressed: _toggleCamera, isActive: !_isCameraOff),
-            _buildControlButton(icon: Icons.flip_camera_ios, onPressed: _switchCamera, isActive: true),
-            _buildControlButton(icon: Icons.call_end, onPressed: _endStream, isActive: false, isDanger: true),
-          ],
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildControlButton(icon: _isMuted ? Icons.mic_off : Icons.mic, onPressed: _toggleMute, isActive: !_isMuted),
+              _buildControlButton(icon: _isCameraOff ? Icons.videocam_off : Icons.videocam, onPressed: _toggleCamera, isActive: !_isCameraOff),
+              _buildControlButton(icon: Icons.flip_camera_ios, onPressed: _switchCamera, isActive: true),
+              _buildControlButton(icon: Icons.call_end, onPressed: _endStream, isActive: false, isDanger: true),
+            ],
+          ),
         ),
       ),
     );
