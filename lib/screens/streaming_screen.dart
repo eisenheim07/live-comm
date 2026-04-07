@@ -157,11 +157,11 @@ class _StreamingScreenState extends State<StreamingScreen> {
           // Main video view
           _buildVideoView(),
 
-          // Top bar with channel info (only show when controls are visible)
-          if (_showControls) _buildTopBar(),
+          // Top bar with channel info - always in widget tree for animation
+          _buildTopBar(),
 
-          // Bottom controls (only show when controls are visible)
-          if (_showControls) _buildBottomControls(),
+          // Bottom controls - always in widget tree for animation
+          _buildBottomControls(),
         ],
       ),
     );
@@ -183,8 +183,10 @@ class _StreamingScreenState extends State<StreamingScreen> {
   }
 
   Widget _buildTopBar() {
-    return Positioned(
-      top: 0,
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      top: _showControls ? 0 : -100,
       left: 0,
       right: 0,
       child: AnimatedOpacity(
@@ -237,8 +239,10 @@ class _StreamingScreenState extends State<StreamingScreen> {
   }
 
   Widget _buildBottomControls() {
-    return Positioned(
-      bottom: 0,
+    return AnimatedPositioned(
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+      bottom: _showControls ? 0 : -150,
       left: 0,
       right: 0,
       child: AnimatedOpacity(
