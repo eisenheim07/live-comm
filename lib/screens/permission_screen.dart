@@ -291,31 +291,31 @@ class PermissionScreenContent extends StatelessWidget {
             ),
 
             // Control Bar
-            Positioned(
-              bottom: SizeUtils.spacing16,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Container(
-                  padding: EdgeInsets.all(SizeUtils.spacing8),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface.withOpacity(0.6),
-                    borderRadius: BorderRadius.circular(SizeUtils.radius8),
-                    border: Border.all(color: AppColors.border.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _buildControlIcon(Icons.mic_off),
-                      AppConstants.smallHorizontalSpace,
-                      _buildControlIcon(isCameraGranted ? Icons.videocam : Icons.videocam_off),
-                      AppConstants.smallHorizontalSpace,
-                      _buildControlIcon(Icons.blur_on),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            // Positioned(
+            //   bottom: SizeUtils.spacing16,
+            //   left: 0,
+            //   right: 0,
+            //   child: Center(
+            //     child: Container(
+            //       padding: EdgeInsets.all(SizeUtils.spacing8),
+            //       decoration: BoxDecoration(
+            //         color: AppColors.surface.withOpacity(0.6),
+            //         borderRadius: BorderRadius.circular(SizeUtils.radius8),
+            //         border: Border.all(color: AppColors.border.withOpacity(0.3)),
+            //       ),
+            //       child: Row(
+            //         mainAxisSize: MainAxisSize.min,
+            //         children: [
+            //           _buildControlIcon(Icons.mic_off),
+            //           AppConstants.smallHorizontalSpace,
+            //           _buildControlIcon(isCameraGranted ? Icons.videocam : Icons.videocam_off),
+            //           AppConstants.smallHorizontalSpace,
+            //           _buildControlIcon(Icons.blur_on),
+            //         ],
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),
